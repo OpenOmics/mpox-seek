@@ -1,0 +1,7 @@
+{
+    "modules": {
+    },
+    "conda":{
+        "mpox-seek": "workflow/envs/mpox.yaml"
+    }
+}

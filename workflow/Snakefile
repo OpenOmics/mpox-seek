@@ -1,0 +1,79 @@
+# Python standard library
+from os.path import join
+import os, sys
+
+# Local imports
+from scripts.common import (
+    allocated,
+    provided, 
+    references,
+    str_bool,
+    depending
+)
+
+# Global workflow variables
+configfile: 'config.json'                      # Generated from user input and config/*.json
+workpath = config['project']['workpath']       # Pipeline's output directory
+tmpdir   = config['options']['tmp_dir']        # Temporary directory
+samples2barcodes = config['barcodes']          # Samples to demultiplex, `cat` together
+
+# Find list of sample which 
+# have mulitple barcodes, this 
+# means they need to be merged  
+barcoded_samples = [k for k in samples2barcodes if samples2barcodes[k]]
+samples = list(config['barcodes'].keys())
+# Read average quality score filter
+quality_filter = int(
+    config['options']['quality_filter']
+) # Default: 8
+
+# Determines if Conda or Singularity
+# are used for software dependencies
+use_singularity = True
+use_conda =  str_bool(
+     config['options']['use_conda']
+) # default: False
+
+# Use an extisting, named conda env
+conda_env_name = config['options']['conda_env_name']                # default: ''
+conda_yaml_or_named_env = join(workpath, config['conda']['mpox-seek']) # default: yaml for building
+if conda_env_name:
+    # Setup so user does not have
+    # to provide the --use-conda 
+    # option with --conda-env-name,
+    # assumes if they provide the 
+    # --conda-env-name option they
+    # obviously want to use conda 
+    # instead of singularity, allows
+    # for backwards compatiability
+    use_conda = True
+    conda_yaml_or_named_env = conda_env_name    # Use an existing, named conda environment
+
+# Use Singularity
+if use_conda or conda_env_name:
+    # Conda and Singularity 
+    # are mutually exclusive 
+    use_singularity = False
+
+
+# Final output files of the pipeline,
+# Rule DAG built from listed here 
+rule all:
+    input:
+        # Merge samples with multiple barcodes,
+        # @imported from `rule setup` in rules/trim.smk 
+        expand(
+            join(workpath, "{name}", "fastqs", "{name}.fastq.gz"), 
+            name=samples
+        ),
+        # Base-calling quality filtering,
+        # @imported from `rule nanofilt` in rules/trim.smk 
+        expand(
+            join(workpath, "{name}", "fastqs", "{name}.filtered.fastq.gz"),
+            name=samples
+        ),
+
+
+# Import rules 
+include: join("rules", "common.smk")
+include: join("rules", "trim.smk")
