@@ -6,6 +6,8 @@ channels:
   - r
 dependencies:
  - nanofilt=2.8.0
- - nanoplot=1.38.1
- - minimap2=2.24
- - krona=2.8.1
+ - porechop=0.2.4
+ - medaka=1.10.0
+ - veryfasttree=4.0.3
+ - fasttree=2.1.11
+ - mafft=7.475
