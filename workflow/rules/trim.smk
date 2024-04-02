@@ -59,7 +59,7 @@ rule setup:
 
 rule nanofilt:
     """
-    Data-processing step to perform base quality filtering with Nanofilt. 
+    Depreciated data-processing step to perform base quality filtering with Nanofilt. 
     @Input:
         Setup FastQ file (scatter)
     @Output:
@@ -81,4 +81,32 @@ rule nanofilt:
             | NanoFilt -q {params.qual_filt} \\
             | gzip \\
         > {output.flt}
+        """
+
+
+rule porechop:
+    """
+    Data-processing step to perform adapter trimming with porechop. 
+    @Input:
+        Setup FastQ file (scatter)
+    @Output:
+        Trimmed FastQ file
+    """
+    input:
+        fq = join(workpath, "{name}", "fastqs", "{name}.fastq.gz"),
+    output:
+        fq = join(workpath, "{name}", "fastqs", "{name}.trimmed.fastq.gz"),
+    params:
+        rname='porechop',
+    conda: depending(conda_yaml_or_named_env, use_conda)
+    container: depending(config['images']['mpox-seek'], use_singularity)
+    shell: 
+        """
+        # Trim adapter sequences with porechop
+        porechop \\
+            -i {input.fq} \\
+            -o {output.fq} \\
+            --format fastq.gz \\
+            --verbosity 1 \\
+            --threads 1
         """

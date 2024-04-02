@@ -1,6 +1,6 @@
 # Python standard library
 from os.path import join
-import os, sys
+import os, sys, json
 
 # Local imports
 from scripts.common import (
@@ -66,14 +66,38 @@ rule all:
             join(workpath, "{name}", "fastqs", "{name}.fastq.gz"), 
             name=samples
         ),
-        # Base-calling quality filtering,
-        # @imported from `rule nanofilt` in rules/trim.smk 
+        # Adapter trimming step,
+        # @imported from `rule porechop` in rules/trim.smk 
         expand(
-            join(workpath, "{name}", "fastqs", "{name}.filtered.fastq.gz"),
+            join(workpath, "{name}", "fastqs", "{name}.trimmed.fastq.gz"),
             name=samples
         ),
+        # Align reads against monkeypox reference,
+        # @imported from `rule minimap2` in rules/map.smk
+        expand(
+            join(workpath, "{name}", "bams", "{name}.sam"),
+            name=samples
+        ),
+        # Create a consensus sequence from alignments
+        # @imported from `rule consensus` in rules/map.smk
+        expand(
+            join(workpath, "{name}", "consensus", "{name}_consensus_seqid.fa"),
+            name=samples
+        ),
+        # Create input file for MSA, concatenates the ref and 
+        # each samples consequence sequence.
+        # @imported from `rule concat` in rules/map.smk
+        join(workpath, "project", "consensus.fa"),
+        # Mutiple sequence alignment (MSA),
+        # @imported from `rule mafft` in rules/map.smk
+        join(workpath, "project", "msa.fa"),
+        # Build a phylogentic tree from MSA,
+        # @imported from `rule tree` in rules/tree.smk
+        join(workpath, "project", "mpox_phylogeny.raxml.bestTree"),
 
 
 # Import rules 
 include: join("rules", "common.smk")
 include: join("rules", "trim.smk")
+include: join("rules", "map.smk")
+include: join("rules", "tree.smk")
