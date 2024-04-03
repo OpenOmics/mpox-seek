@@ -17,7 +17,6 @@ rule tree:
         nw  = join(workpath, "project", "mpox_phylogeny.raxml.bestTree"),
     params:
         rname  = 'tree',
-        ref_fa = config['references']['mpox_ref_genome'],
         prefix = join(workpath, "project", "mpox_phylogeny"),
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)

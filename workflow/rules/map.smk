@@ -14,7 +14,7 @@ rule minimap2:
         sam  = join(workpath, "{name}", "bams", "{name}.sam"),
     params:
         rname  = 'minimap2',
-        ref_fa  = config['references']['mpox_ref_genome'],
+        ref_fa  = config['references']['mpox_pcr_sequence'],
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)
     shell: 
@@ -48,7 +48,7 @@ rule consensus:
         fixed = join(workpath, "{name}", "consensus", "{name}_consensus_seqid.fa"),
     params:
         rname  = 'consensus',
-        ref_fa  = config['references']['mpox_ref_genome'],
+        ref_fa  = config['references']['mpox_pcr_sequence'],
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)
     shell: 
@@ -85,7 +85,7 @@ rule concat:
         fa  = join(workpath, "project", "consensus.fa"),
     params:
         rname  = 'premafft',
-        ref_fa  = config['references']['mpox_ref_genome'],
+        ref_fa  = config['references']['mpox_pcr_sequence'],
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)
     shell: 
@@ -113,7 +113,6 @@ rule mafft:
         msa = join(workpath, "project", "msa.fa"),
     params:
         rname  = 'msa',
-        ref_fa  = config['references']['mpox_ref_genome'],
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)
     shell: 
