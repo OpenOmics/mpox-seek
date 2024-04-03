@@ -406,23 +406,28 @@ def parsed_arguments(name, description):
           More analysis option coming soon! 
 
         {3}{4}Orchestration options:{5}
-          --mode {{slurm,local}}  
+          --mode {{local,slurm}}  
                                 Method of execution. Defines the mode of execution. 
                                 Vaild options for this mode include: local or slurm. 
                                 Additional modes of exection are coming soon, default:  
-                                slurm.
+                                local.
                                 Here is a brief description of each mode:
                                    • local: uses local method of execution. local runs 
                                 will run serially on compute instance. This is useful 
                                 for testing, debugging, or when a users does not have
                                 access to a  high  performance  computing environment.
                                 If this option is not provided, it will default to a 
-                                slurm mode of execution. 
+                                this mode of execution. This is the correct mode of 
+                                execution if you are running the pipeline on a laptop
+                                or a local desktop computer.
                                    • slurm: uses slurm execution backend. This method 
-                                will submit jobs to a  cluster  using sbatch. It is 
+                                will submit jobs to a HPC cluster using sbatch. It is 
                                 recommended running the pipeline in this mode as it 
-                                will be significantly faster. 
-                                  Example: --mode slurm
+                                will be significantly faster; however, this mode of
+                                execution can only be provided if the pipeline is
+                                being run from a SLURM HPC cluster. By default, the 
+                                pipeline runs in a local mode of execution.
+                                  Example: --mode local
           --job-name JOB_NAME   
                                 Overrides the name of the pipeline's master job. When 
                                 submitting the pipeline to a jobscheduler, this option
@@ -587,7 +592,7 @@ def parsed_arguments(name, description):
         '--mode',
         type = str,
         required = False,
-        default = "slurm",
+        default = "local",
         choices = ['slurm', 'local'],
         help = argparse.SUPPRESS
     )
