@@ -169,3 +169,6 @@ site/
 test.sh
 test_*/
 tmp_*/
+
+# Ignore conda hard link to environment yaml file
+docker/mpox-seek/mpox.yaml
