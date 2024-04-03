@@ -1,15 +1,23 @@
-# Base image for metavirs,
+# Base image for mpox-seek,
 # uses Ubuntu Jammy (LTS)
 FROM ubuntu:22.04
 
-# Depedencies of metvirs:
-#  - nanofilt/2.8.0       # from src, installed: 2.8.0
-#      @requires: python3
-#      @requires: python3-biopython
-#      @requires: python3-pandas
-#  - minimap2/2.24        # apt-get, installed: 2.24
-#  - kronatools/2.8.1     # from src, installed: 2.8.1
-#      @requires: curl
+# Depedencies of pipeline, see 'mpox.yaml' for latest:
+#   name: mpox-seek
+#   channels:
+#     - conda-forge
+#     - bioconda
+#     - defaults
+#     - r
+#   dependencies:
+#    - nanofilt=2.8.0
+#    - porechop=0.2.4
+#    - minimap2=2.28
+#    - fasttree=2.1.11
+#    - mafft=7.520
+#    - viral_consensus=0.0.4
+#    - raxml-ng=1.2.1
+#    - gawk
 LABEL maintainer=kuhnsa@nih.gov
 
 ############### INIT ################
@@ -33,23 +41,21 @@ RUN apt-get update \
     && apt-get -y upgrade \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         build-essential \
+        bzip2 \
+        ca-certificates \
+        curl \
         gawk \
         git \
         gzip \
         locales \
         make \
+        python3 \
+        python3-pip \
+        python3-requests \
+        python3-pandas \
         unzip \
         wget \
         zlib1g-dev \
-        # kronatools dependencies
-        curl \
-        perl \
-        cpanminus \
-        # nanofilt dependencies
-        python3 \
-        python3-pip \
-        python3-biopython \
-        python3-pandas \
     && apt-get clean && apt-get purge \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -58,36 +64,21 @@ RUN localedef -i en_US -f UTF-8 en_US.UTF-8
 
 # Make python3 the default interpreter
 # and install Python Packages 
-# and install nanofilt/2.8.0
-RUN ln -sf /usr/bin/python3.8 /usr/bin/python
-RUN pip3 install --upgrade pip \
-	&& pip3 install argparse \
-        && pip3 install nanofilt==2.8.0
+RUN ln -sf /usr/bin/python3.10 /usr/bin/python
+RUN pip3 install --upgrade pip 
 
 ############### INSTALL ################
-# Install any bioinformatics tools
-# available with apt-get on Ubuntu/22.04
-RUN apt-get update \
-    && apt-get -y upgrade \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        # minimap2/2.24
-        minimap2 \
-        # samtools/1.13
-        samtools \
-    && apt-get clean && apt-get purge \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-############### MANUAL ################
-# Install kronatools/v2.8.1) manually, 
-# not available to apt-get on Ubuntu/20.04.
-# Dependencies already satisfied:
-# https://github.com/marbl/Krona/releases
-RUN wget https://github.com/marbl/Krona/releases/download/v2.8.1/KronaTools-2.8.1.tar \
-	    && tar -xvf KronaTools-2.8.1.tar  \
-	    && rm KronaTools-2.8.1.tar \ 
-	    && cd KronaTools-2.8.1/ \
-	    && ./install.pl
-WORKDIR /opt2
+# Install conda and mamba and create an
+# environment called, mpox-seek from the
+# following file: mpox.yaml
+COPY mpox.yaml /opt2/mpox.yaml
+RUN mkdir -p /opt2/conda/ \
+        && wget -O /opt2/conda/Miniforge3_install.sh "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" \
+        && bash /opt2/conda/Miniforge3_install.sh -b -f -p /opt2/conda/ \
+        && source "/opt2/conda/etc/profile.d/conda.sh" \
+        && source "/opt2/conda/etc/profile.d/mamba.sh" \
+        && mamba env create -y --name mpox-seek --file=/opt2/mpox.yaml \
+        && mamba clean --all -y
 
 ################ POST #################
 # Add Dockerfile and export environment 
@@ -95,5 +86,5 @@ WORKDIR /opt2
 # to alternative versions
 ADD Dockerfile /opt2/mpox-seek.dockerfile
 RUN chmod -R a+rX /opt2
-ENV PATH="/opt2:$PATH"
+ENV PATH="/opt/conda/envs/mpox-seek/bin:${PATH}"
 WORKDIR /data2
