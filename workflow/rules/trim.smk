@@ -84,6 +84,30 @@ rule nanofilt:
         """
 
 
+rule zcat:
+    """
+    Data-processing step decompress a gzipp-ed strains file.
+    @Input:
+        Compressed genomic fasta file of additional monkeypox strains (singleton)
+    @Output:
+        Uncompressed genomic fasta file of additional monkeypox strains
+    """
+    input:
+        fa = strains_fasta,
+    output:
+        fa = join(workpath, "project", "additional_strains.fa"),
+    params:
+        rname='zcat',
+    conda: depending(conda_yaml_or_named_env, use_conda)
+    container: depending(config['images']['mpox-seek'], use_singularity)
+    shell: 
+        """
+        # Uncompress monkeypox strains fasta
+        gunzip -c {input.fa} \\
+            > {output.fa}
+        """
+
+
 rule porechop:
     """
     Data-processing step to perform adapter trimming with porechop. 
