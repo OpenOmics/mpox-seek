@@ -1,6 +1,5 @@
 {
     "references": {
-        "mpox_ref_genome":   "/data/OpenOmics/references/mpox-seek/mpox_NC_003310_1.fa",
-        "mpox_pcr_sequence": "/data/OpenOmics/references/mpox-seek/mpox_NC_003310_1_pcr_sequence.fa"
+        "mpox_pcr_sequence": "resources/mpox_NC_003310_1_pcr_sequence.fa"
     }
 }
