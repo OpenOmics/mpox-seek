@@ -75,10 +75,26 @@ COPY mpox.yaml /opt2/mpox.yaml
 RUN mkdir -p /opt2/conda/ \
         && wget -O /opt2/conda/Miniforge3_install.sh "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" \
         && bash /opt2/conda/Miniforge3_install.sh -b -f -p /opt2/conda/ \
-        && source "/opt2/conda/etc/profile.d/conda.sh" \
-        && source "/opt2/conda/etc/profile.d/mamba.sh" \
+        && . "/opt2/conda/etc/profile.d/conda.sh" \
+        && . "/opt2/conda/etc/profile.d/mamba.sh" \
         && mamba env create -y --name mpox-seek --file=/opt2/mpox.yaml \
-        && mamba clean --all -y
+        && mamba clean --all -y \
+        && rm -f /opt2/conda/Miniforge3_install.sh
+
+# Install GNU which, increases compatiability
+# with which distros included with Debian/Rocky
+# linux installations, this version of which
+# includes extra options that the ubuntu version 
+# does not have. The gnu verison is backwards 
+# compatiable with the ubunutu version.
+RUN mkdir -p /opt2/ \
+        && wget --no-check-certificate -O /opt2/which.tar.gz https://ftp.gnu.org/gnu/which/which-2.21.tar.gz \
+        && tar -xvf /opt2/which.tar.gz -C /opt2/ \
+        && rm /opt2/which.tar.gz \
+        && cd /opt2/which-2.21/ \
+        && ./configure --prefix=/opt2/which-2.21 \
+        && make \
+        && make install
 
 ################ POST #################
 # Add Dockerfile and export environment 
@@ -86,5 +102,5 @@ RUN mkdir -p /opt2/conda/ \
 # to alternative versions
 ADD Dockerfile /opt2/mpox-seek.dockerfile
 RUN chmod -R a+rX /opt2
-ENV PATH="/opt/conda/envs/mpox-seek/bin:${PATH}"
+ENV PATH="/opt2/conda/envs/mpox-seek/bin:/opt2/which-2.21/bin:${PATH}"
 WORKDIR /data2

@@ -7,6 +7,7 @@ Directly below are instructions for building an image using the provided Dockerf
 docker image ls
 
 # Build from Dockerfile
+ln -f ../../workflow/envs/mpox.yaml .
 docker build --no-cache -f Dockerfile --tag=mpox-seek:v0.1.0 .
 
 # Testing, take a peek inside
