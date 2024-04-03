@@ -140,6 +140,11 @@ def run(sub_args):
 
     config['bindpaths'] = bindpaths
 
+    if sub_args.additional_strains:
+        # Use user provided genome sequences
+        # of additional mpox strains/isolates
+        config['references']['additional_mpox_strains'] = sub_args.additional_strains
+
     # Step 4. Save config to output directory
     with open(os.path.join(sub_args.output, 'config.json'), 'w') as fh:
         json.dump(config, fh, indent = 4, sort_keys = True)
@@ -377,6 +382,8 @@ def parsed_arguments(name, description):
                 [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \\
                 [--resource-bundle RESOURCE_BUNDLE] [--use-conda] \\
                 [--conda-env-name CONDA_ENV_NAME] \\
+                [--additional-strains ADDITIONAL_STRAINS] \\
+                [--batch-id BATCH_ID] \\
                 --input INPUT [INPUT ...] \\
                 --output OUTPUT
 
@@ -400,10 +407,46 @@ def parsed_arguments(name, description):
                                 known as the pipeline's working directory. If the user
                                 provided working directory has not been initialized,
                                 it will be created automatically.
-                                  Example: --output /data/$USER/output
+                                  Example: --output mpox_output
 
         {3}{4}Analysis options:{5}
-          More analysis option coming soon! 
+          --additional-strains ADDITIONAL_STRAINS
+                                Genomic fasta file of additional monekypox strains to
+                                add to the phylogenetic tree. By default, a phylogenetic
+                                tree is build with your input samples and the reference
+                                genome, see "mpox_pcr_sequence" in "config/genome.json"
+                                for the path to this file. When this option is provided
+                                a phylogenetic tree containing your input samples, the
+                                reference genome, and any additional monkeypox strain
+                                the provided file are built. We have provided a genomic
+                                fasta file of additional strains with mpox-seek. Please
+                                see "resources/mpox_additional_strains.fa.gz" for more
+                                information. This file can be provided directly to this
+                                option. We highly recommended using this option with
+                                the "--batch-id" option below to avoid any files from 
+                                being overwritten between runs of the pipeline. For more
+                                information about the "--batch-id" option, please see
+                                the option listed below.
+                                  Example:
+                                    --additional-strains resources/mpox_additional_strains.fa.gz
+
+          --batch-id BATCH_ID
+                                Unique identifer to associate with a batch of samples.
+                                This option can be provided to ensure that project-level
+                                output files are not over-written between runs of the
+                                pipeline. As so, it is good to always provide this option.
+                                By default, project-level files in the "project" will get
+                                over-written between pipeline runs if this option is not
+                                provided. Any identifer provided to this option will be
+                                used to create a sub-directory in the project folder. 
+                                This ensures project-level files (which are unique) will 
+                                not get over-written as new data/samples are processed.
+                                A unique batch id should be provided between runs. This
+                                batch id should be composed of alphanumeric characters
+                                and it should not contain a white space or tab characters.
+                                Here is a list of valid or acceptable characters: "aA-Zz",
+                                "0-9", "-", "_".
+                                  Example: --batch-id "2024-04-01"
 
         {3}{4}Orchestration options:{5}
           --mode {{local,slurm}}  
@@ -522,25 +565,34 @@ def parsed_arguments(name, description):
     # Display example usage in epilog
     run_epilog = textwrap.dedent("""\
         {2}{3}Example:{4}
-          # Step 1.) Grab an interactive node,
-          # do not run on head node!
-          srun -N 1 -n 1 --time=1:00:00 --mem=8gb  --cpus-per-task=2 --pty bash
-          module purge
-          module load singularity snakemake
-
-          # Step 2A.) Dry-run the pipeline
+          # Step 1.) Activate your conda environment,
+          # assumes its installed in home directory.
+          # May need to change this depending on
+          # where you installed conda/mamba.
+          . ${{HOME}}/conda/etc/profile.d/conda.sh
+          conda activate snakemake
+        
+          # Step 2A.) Dry-run the pipeline, this
+          # will show what steps will run.
           ./{0} run --input .tests/*.fastq.gz \\
-                    --output output_01 \\
-                    --mode slurm \\
+                    --output mpox-seek_output \\
+                    --additional-strains resources/mpox_additional_strains.fa.gz \\
+                    --batch-id "$(date '+%Y-%m-%d-%H-%M')" \\
+                    --mode local \\
                     --dry-run
 
-          # Step 2B.) Run the {0} pipeline
-          # The slurm mode will submit jobs to 
-          # the cluster. It is recommended running 
-          # the pipeline in this mode.
+          # Step 2B.) Run the {0} pipeline,
+          # Create a tree with additional 
+          # strains of interest and adds a
+          # unique batch identifer to project-
+          # level files to ensure no over
+          # writting of files occurs, format:
+          # YYYY-MM-DD-HH-MM.
           ./{0} run --input .tests/*.fastq.gz \\
-                    --output output_01 \\
-                    --mode slurm
+                    --output mpox-seek_output \\
+                    --additional-strains resources/mpox_additional_strains.fa.gz \\
+                    --batch-id "$(date '+%Y-%m-%d-%H-%M')" \\
+                    --mode local
 
         {2}{3}Version:{4}
           {1}
@@ -573,6 +625,25 @@ def parsed_arguments(name, description):
         '--output',
         type = lambda option: os.path.abspath(os.path.expanduser(option)),
         required = True,
+        help = argparse.SUPPRESS
+    )
+
+    # Analysis options
+    subparser_run.add_argument(
+        '--additional-strains',
+        # Check if the file exists and if it is readable
+        type = lambda file: permissions(parser, file, os.R_OK),
+        required = False,
+        default = None,
+        help = argparse.SUPPRESS
+    )
+
+    # Batch Identifer
+    subparser_run.add_argument(
+        '--batch-id',
+        type = lambda option: option.replace(' ', '_'),
+        required = False,
+        default = '',
         help = argparse.SUPPRESS
     )
 
