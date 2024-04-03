@@ -22,10 +22,6 @@ samples2barcodes = config['barcodes']          # Samples to demultiplex, `cat` t
 # means they need to be merged  
 barcoded_samples = [k for k in samples2barcodes if samples2barcodes[k]]
 samples = list(config['barcodes'].keys())
-# Read average quality score filter
-quality_filter = int(
-    config['options']['quality_filter']
-) # Default: 8
 
 # Determines if Conda or Singularity
 # are used for software dependencies

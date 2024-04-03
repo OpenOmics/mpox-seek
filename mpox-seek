@@ -377,7 +377,6 @@ def parsed_arguments(name, description):
                 [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \\
                 [--resource-bundle RESOURCE_BUNDLE] [--use-conda] \\
                 [--conda-env-name CONDA_ENV_NAME] \\
-                [--quality-filter QUALITY_FILTER] \\
                 --input INPUT [INPUT ...] \\
                 --output OUTPUT
 
@@ -404,10 +403,7 @@ def parsed_arguments(name, description):
                                   Example: --output /data/$USER/output
 
         {3}{4}Analysis options:{5}
-          --quality-filter QUALITY_FILTER
-                                Filter reads on a minimum average quality score. The 
-                                default average minimum quality filter is set to 8.
-                                  Example: --quality-filter 8
+          More analysis option coming soon! 
 
         {3}{4}Orchestration options:{5}
           --mode {{slurm,local}}  
@@ -529,7 +525,7 @@ def parsed_arguments(name, description):
 
           # Step 2A.) Dry-run the pipeline
           ./{0} run --input .tests/*.fastq.gz \\
-                    --output /data/$USER/output \\
+                    --output output_01 \\
                     --mode slurm \\
                     --dry-run
 
@@ -538,7 +534,7 @@ def parsed_arguments(name, description):
           # the cluster. It is recommended running 
           # the pipeline in this mode.
           ./{0} run --input .tests/*.fastq.gz \\
-                    --output /data/$USER/output \\
+                    --output output_01 \\
                     --mode slurm
 
         {2}{3}Version:{4}
@@ -572,16 +568,6 @@ def parsed_arguments(name, description):
         '--output',
         type = lambda option: os.path.abspath(os.path.expanduser(option)),
         required = True,
-        help = argparse.SUPPRESS
-    )
-
-    # Analysis Arguments
-    # Minimum average read quality filter 
-    subparser_run.add_argument(
-        '--quality-filter',
-        type = int,
-        required = False,
-        default = 8,
         help = argparse.SUPPRESS
     )
 

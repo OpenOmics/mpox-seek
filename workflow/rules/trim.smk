@@ -71,7 +71,7 @@ rule nanofilt:
         flt = join(workpath, "{name}", "fastqs", "{name}.filtered.fastq.gz"),
     params:
         rname='nanofilt',
-        qual_filt=quality_filter,
+        qual_filt=8,
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)
     shell: 
