@@ -1,5 +1,5 @@
 {
     "images": {
-        "mpox-seek": "docker://skchronicles/mpox:v0.1.0"
+        "mpox-seek": "docker://skchronicles/mpox-seek:v0.1.0"
     }
 }
