@@ -16,6 +16,26 @@ configfile: 'config.json'                      # Generated from user input and c
 workpath = config['project']['workpath']       # Pipeline's output directory
 tmpdir   = config['options']['tmp_dir']        # Temporary directory
 samples2barcodes = config['barcodes']          # Samples to demultiplex, `cat` together
+# Creates a unique sub directory
+# within using the identifer with
+# project level folder. This is to
+# ensure files are not over-written
+# between runs of the pipeline,
+# needs to be added to paths in the
+# project folder.
+batch_id = config['options']['batch_id']                  # Batch Identifer, default: ''.
+strains_fasta = config['options']['additional_strains']   # Additional strains fasta, default: "None"  
+# Build phylogentic tree with
+# additional mpox strains provided
+# via --additional-strains option,
+# If option is not provided, it will
+# resolve to "None"
+add_strains = False if strains_fasta == "None" else True
+strains_fasta = strains_fasta if add_strains else ''
+
+decompress_strains_fasta = False
+if strains_fasta.endswith('.gz') or strains_fasta.endswith('.gzip'):
+    decompress_strains_fasta = True 
 
 # Find list of sample which 
 # have mulitple barcodes, this 
@@ -56,6 +76,13 @@ if use_conda or conda_env_name:
 # Rule DAG built from listed here 
 rule all:
     input:
+        # Uncompress additional strains fasta file,
+        # conditionally run if --additional-strains
+        # option is provided and file is gzipped
+        provided(
+            [join(workpath, "project", "additional_strains.fa")],
+            add_strains and decompress_strains_fasta
+        ),
         # Merge samples with multiple barcodes,
         # @imported from `rule setup` in rules/trim.smk 
         expand(
@@ -83,13 +110,13 @@ rule all:
         # Create input file for MSA, concatenates the ref and 
         # each samples consequence sequence.
         # @imported from `rule concat` in rules/map.smk
-        join(workpath, "project", "consensus.fa"),
+        join(workpath, "project", batch_id, "consensus.fa"),
         # Mutiple sequence alignment (MSA),
         # @imported from `rule mafft` in rules/map.smk
-        join(workpath, "project", "msa.fa"),
+        join(workpath, "project", batch_id, "msa.fa"),
         # Build a phylogentic tree from MSA,
         # @imported from `rule tree` in rules/tree.smk
-        join(workpath, "project", "mpox_phylogeny.raxml.bestTree"),
+        join(workpath, "project", batch_id, "mpox_phylogeny.raxml.bestTree"),
 
 
 # Import rules 

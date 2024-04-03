@@ -81,18 +81,25 @@ rule concat:
     """
     input:
         fas = expand(join(workpath, "{name}", "consensus", "{name}_consensus_seqid.fa"), name=samples),
+        strain = lambda _: join(workpath, "project", "additional_strains.fa") \
+        if decompress_strains_fasta else [],
     output:
-        fa  = join(workpath, "project", "consensus.fa"),
+        fa  = join(workpath, "project", batch_id, "consensus.fa"),
     params:
         rname  = 'premafft',
-        ref_fa  = config['references']['mpox_pcr_sequence'],
-    conda: depending(conda_yaml_or_named_env, use_conda)
+        ref_fa = config['references']['mpox_pcr_sequence'],
+        # Use decompressed strains fasta file if
+        # a gzipped input file was provided, else
+        # use strains_fa (either file or empty string)
+        strain_fa = lambda _: join(workpath, "project", "additional_strains.fa") \
+        if decompress_strains_fasta else strains_fasta,
+    conda: depending(conda_yaml_or_named_env, use_conda),
     container: depending(config['images']['mpox-seek'], use_singularity)
     shell: 
         """
         # Create FASTA file with the reference genome
         # and the consensus sequence of each sample
-        cat {params.ref_fa} \\
+        cat {params.ref_fa} {params.strain_fa} \\
             {input.fas} \\
             > {output.fa}
         """
@@ -108,9 +115,9 @@ rule mafft:
         Multiple sequence alignment (MSA) FASTA file from mafft.
     """
     input:
-        fa  = join(workpath, "project", "consensus.fa"),
+        fa  = join(workpath, "project", batch_id, "consensus.fa"),
     output:
-        msa = join(workpath, "project", "msa.fa"),
+        msa = join(workpath, "project", batch_id, "msa.fa"),
     params:
         rname  = 'msa',
     conda: depending(conda_yaml_or_named_env, use_conda)

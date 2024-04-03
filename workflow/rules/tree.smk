@@ -12,12 +12,12 @@ rule tree:
         Phylogenetic tree (Newick format).
     """
     input:
-        msa  = join(workpath, "project", "msa.fa"),
+        msa = join(workpath, "project", batch_id, "msa.fa"),
     output:
-        nw  = join(workpath, "project", "mpox_phylogeny.raxml.bestTree"),
+        nw  = join(workpath, "project", batch_id, "mpox_phylogeny.raxml.bestTree"),
     params:
         rname  = 'tree',
-        prefix = join(workpath, "project", "mpox_phylogeny"),
+        prefix = join(workpath, "project", batch_id, "mpox_phylogeny"),
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)
     shell: 
@@ -30,5 +30,6 @@ rule tree:
             --msa {input.msa} \\
             --model GTR+G \\
             --msa-format FASTA \\
-            --prefix {params.prefix}
+            --prefix {params.prefix} \\
+            --seed 42
         """
