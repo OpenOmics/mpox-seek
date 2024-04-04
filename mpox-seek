@@ -51,7 +51,8 @@ from src.utils import (
     exists,
     fatal,
     permissions,
-    require
+    require,
+    valid_directory
 )
 
 
@@ -641,7 +642,7 @@ def parsed_arguments(name, description):
     # Batch Identifer
     subparser_run.add_argument(
         '--batch-id',
-        type = lambda option: option.replace(' ', '_'),
+        type = lambda option: valid_directory(parser, option.replace(' ', '_')),
         required = False,
         default = '',
         help = argparse.SUPPRESS
