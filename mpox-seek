@@ -570,7 +570,7 @@ def parsed_arguments(name, description):
                                 that was specifically built for the {2} pipeline. To 
                                 create a reusable conda/mamba environment with the 
                                 name '{2}', please run the following mamba command:
-                                'mamba env create -f workflow/envs/mpox-seek.yaml'.
+                                'mamba env create -f workflow/envs/mpox.yaml'.
                                   Example: --conda-env-name mpox-seek
         {3}{4}Misc Options:{5}
           -h, --help            Show usage information, help message, and exit.
@@ -594,6 +594,8 @@ def parsed_arguments(name, description):
                     --additional-strains resources/mpox_additional_strains.fa.gz \\
                     --batch-id "$(date '+%Y-%m-%d-%H-%M')" \\
                     --mode local \\
+                    --use-conda \\
+                    --conda-env-name mpox-seek \\
                     --dry-run
 
           # Step 2B.) Run the {0} pipeline,
@@ -607,6 +609,8 @@ def parsed_arguments(name, description):
                     --output mpox-seek_output \\
                     --additional-strains resources/mpox_additional_strains.fa.gz \\
                     --batch-id "$(date '+%Y-%m-%d-%H-%M')" \\
+                    --use-conda \\
+                    --conda-env-name mpox-seek \\
                     --mode local
 
         {2}{3}Version:{4}
