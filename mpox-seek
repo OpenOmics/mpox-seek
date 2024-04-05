@@ -222,6 +222,20 @@ def install(sub_args):
     ) as fh:
         install_config = json.load(fh)
 
+    content = [
+        f \
+        for f in install_config['install'] \
+            if install_config['install'][f].keys()
+    ]
+
+    if not content:
+        print(
+            'Nothing to download! The pipeline is setup and ready to run.',
+            '\nThis pipeline already has all of its references bundled here:',
+            '\n  • {0}'.format(os.path.join(__home__, 'resources'))
+        )
+        sys.exit(0)
+
     # Try to install any missing targets
     download_links = []
     md5_checksums = []
