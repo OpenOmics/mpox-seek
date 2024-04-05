@@ -15,7 +15,8 @@ $ mpox-seek run [--help] \
       [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \
       [--resource-bundle RESOURCE_BUNDLE] [--use-conda] \
       [--conda-env-name CONDA_ENV_NAME] \
-      [--quality-filter QUALITY_FILTER] \
+      [--additional-strains ADDITIONAL_STRAINS] \
+      [--batch-id BATCH_ID] \
       --input INPUT [INPUT ...] \
       --output OUTPUT
 ```
@@ -51,14 +52,25 @@ Each of the following arguments are required. Failure to provide a required argu
 
 Each of the following arguments are optional, and do not need to be provided. 
 
-  `--quality-filter QUALITY_FILTER`  
-> **Quality score filter.**  
-> *type: int*
-> *default: 8*
+  `--additional-strains ADDITIONAL_STRAINS`  
+> **Genomic fasta file of additional monekypox strains to add to the phylogenetic tree.**  
+> *type: FASTA file*
+> *default: none*
 > 
-> This option filters reads on a minimum average quality score. Any reads with an average minimum quality score less than this threshold will be removed. The default average minimum quality filter is set to 8.
+> This is a genomic fasta file of additional monekypox strains to add to the phylogenetic tree. By default, a phylogenetic tree is build with your input samples and the [reference genome](https://github.com/OpenOmics/mpox-seek/blob/main/resources/mpox_NC_003310_1_pcr_sequence.fa), see "mpox_pcr_sequence" in "[config/genome.json](https://github.com/OpenOmics/mpox-seek/blob/main/config/genome.json)" for the path to this file. When this option is provided a phylogenetic tree containing your input samples, the reference genome, and any additional monkeypox strain the provided file are built. We have provided a genomic fasta file of additional strains with mpox-seek. Please see "[resources/mpox_additional_strains.fa.gz](https://github.com/OpenOmics/mpox-seek/blob/main/resources/)" for more information. This file can be provided directly to this option. We highly recommended using this option with the `--batch-id` option below to avoid any files from being overwritten between runs of the pipeline.  
 > 
-> ***Example:*** `--quality-filter 10`
+> ***Example:*** `resources/mpox_additional_strains.fa.gz`
+
+---
+  `--batch-id BATCH_ID`  
+> **Unique identifer to associate with a batch of samples.**  
+> *type: string*
+> *default: none*
+> 
+> This option can be provided to ensure that project-level output files are not over-written between runs of the pipeline. As so, it is good to always provide this option. By default, project-level files in the "project" will get over-written between pipeline runs if this option is not provided. Any identifer provided to this option will be used to create a sub-directory in the project folder. This ensures project-level files (which are unique) will  not get over-written as new data/samples are processed. A unique batch id should be provided between runs. This batch id should be composed of alphanumeric characters and it should not contain a white space or tab characters. Here is a list of valid or acceptable characters: `aA-Zz`, `0-9`, `-`, `_`. 
+> 
+> ***Example:*** `--batch-id "2024-04-01"`
+
 
 ### 2.3 Orchestration options
 
@@ -82,20 +94,20 @@ Each of the following arguments are optional, and do not need to be provided.
 > ***Example:*** `--silent`
 
 ---  
-  `--mode {slurm,local}`  
+  `--mode {local,slurm}`  
 > **Execution Method.**  
 > *type: string*  
-> *default: slurm*
+> *default: local*
 > 
 > Execution Method. Defines the mode or method of execution. Vaild mode options include: slurm or local. 
-> 
-> ***slurm***    
-> The slurm execution method will submit jobs to the [SLURM workload manager](https://slurm.schedmd.com/). It is recommended running mpox-seek in this mode as execution will be significantly faster in a distributed environment. This is the default mode of execution.
 >
 > ***local***  
-> Local executions will run serially on compute instance. This is useful for testing, debugging, or when a users does not have access to a high performance computing environment. If this option is not provided, it will default to a local execution mode. 
-> 
-> ***Example:*** `--mode slurm`
+> Local executions will run serially on compute instance, laptop, or desktop computer. This is useful for testing, debugging, or when a users does not have access to a high performance computing environment. If this option is not provided, it will default to a this mode of execution. This is the correct mode of execution if you are running the pipeline on a laptop or a local desktop computer. 
+>  
+> ***slurm***    
+> The slurm execution method will submit jobs to the [SLURM workload manager](https://slurm.schedmd.com/). This method will submit jobs to a SLURM HPC cluster using sbatch. It is recommended running the pipeline in this mode as it will be significantly faster; however, this mode of execution can only be provided if the pipeline is being run from a SLURM HPC cluster. By default, the pipeline runs in a local mode of execution. If you are running this pipeline on a laptop or desktop compute, please use the local mode of execution.
+>
+> ***Example:*** `--mode local`
 
 ---  
   `--job-name JOB_NAME`  
@@ -151,7 +163,7 @@ Each of the following arguments are optional, and do not need to be provided.
 > **Path to a resource bundle downloaded with the install sub command.**  
 > *type: path*  
 >
-> The resource bundle contains the set of required reference files for processing any data. The path provided to this option will be the path to the `mpox-seek` directory that was created when running the install sub command. Please see the install sub command for more information about downloading the pipeline's resource bundle.
+> At the current moment, the pipeline does not need any external resources/reference files to be downloaded prior to running. All the pipeline's reference files have been bundled within the github repository. They can be found within the [resources folder](https://github.com/OpenOmics/mpox-seek/tree/main/resources). As so, this option should not be provided at run time.
 > 
 > ***Example:*** `--resource-bundle /data/$USER/refs/mpox-seek`
 
@@ -175,7 +187,7 @@ Each of the following arguments are optional, and do not need to be provided.
 > ```bash
 > # Creates a reusable conda
 > # environment called mpox-seek
-> mamba env create -f workflow/envs/mpox-seek.yaml.
+> mamba env create -f workflow/envs/mpox.yaml
 > ```
 
 > ***Example:*** `--conda-env-name mpox-seek`
@@ -192,24 +204,38 @@ Each of the following arguments are optional, and do not need to be provided.
 > ***Example:*** `--help`
 
 ## 3. Example
+
+The example below shows how 
+
 ```bash 
-# Step 1.) Grab an interactive node,
-# do not run on head node!
-srun -N 1 -n 1 --time=1:00:00 --mem=8gb  --cpus-per-task=2 --pty bash
-module purge
-module load singularity snakemake
+  # Step 1.) Activate your conda environment,
+  # assumes its installed in home directory.
+  # May need to change this depending on
+  # where you installed conda/mamba.
+  . ${HOME}/conda/etc/profile.d/conda.sh
+  conda activate snakemake
 
-# Step 2A.) Dry-run the pipeline
-./mpox-seek run --input .tests/*.fastq.gz \
-             --output /data/$USER/output \
-             --mode slurm \
-             --dry-run
+  # Step 2A.) Dry-run the pipeline, this
+  # will show what steps will run.
+  ./mpox-seek run --input .tests/*.fastq.gz \
+            --output mpox-seek_output \
+            --additional-strains resources/mpox_additional_strains.fa.gz \
+            --batch-id "$(date '+%Y-%m-%d-%H-%M')" \
+            --mode local \
+            --use-conda \
+            --dry-run
 
-# Step 2B.) Run the mpox-seek pipeline
-# The slurm mode will submit jobs to 
-# the cluster. It is recommended running 
-# the pipeline in this mode.
-./mpox-seek run --input .tests/*.fastq.gz \
-             --output /data/$USER/output \
-             --mode slurm
+  # Step 2B.) Run the mpox-seek pipeline,
+  # Create a tree with additional 
+  # strains of interest and adds a
+  # unique batch identifer to project-
+  # level files to ensure no over
+  # writting of files occurs, format:
+  # YYYY-MM-DD-HH-MM.
+  ./mpox-seek run --input .tests/*.fastq.gz \
+            --output mpox-seek_output \
+            --additional-strains resources/mpox_additional_strains.fa.gz \
+            --batch-id "$(date '+%Y-%m-%d-%H-%M')" \
+            --use-conda \
+            --mode local
 ```
