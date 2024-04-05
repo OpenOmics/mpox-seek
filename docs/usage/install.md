@@ -1,5 +1,13 @@
 # <code>mpox-seek <b>install</b></code>
 
+???+ note
+
+    This pipeline does not have any reference files that need to be downloaded
+    prior to running. As so, everything on this page can be safely ignored! We
+    have bundled all the reference files for the pipeline within our Github
+    repository. All the reference files are located within the [resources folder](https://github.com/OpenOmics/mpox-seek/tree/main/resources).
+
+
 ## 1. About 
 The `mpox-seek` executable is composed of several inter-related sub commands. Please see `mpox-seek -h` for all available options.
 
