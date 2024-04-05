@@ -205,7 +205,7 @@ Each of the following arguments are optional, and do not need to be provided.
 
 ## 3. Example
 
-The example below shows how 
+The example below shows how run the pipeline locally using conda/mamba. If you have already created a _mpox-seek_ conda environment, please use feel free to also add the following option: `--conda-env-name mpox-seek`. To create a re-usable, named conda environment for the pipeline, please run the following command: `mamba env create -f workflow/envs/mpox.yaml`. For detailed setup instructions, please see our [setup page](setup.md).
 
 ```bash 
   # Step 1.) Activate your conda environment,
