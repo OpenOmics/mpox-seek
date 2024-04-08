@@ -37,6 +37,10 @@ decompress_strains_fasta = False
 if strains_fasta.endswith('.gz') or strains_fasta.endswith('.gzip'):
     decompress_strains_fasta = True 
 
+# Maps branch support/confidence values
+# to the best tree via bootstrapping data 
+bootstrap_trees = str_bool(config['options']['bootstrap_trees'])
+
 # Find list of sample which 
 # have mulitple barcodes, this 
 # means they need to be merged  

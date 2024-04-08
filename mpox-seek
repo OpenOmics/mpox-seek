@@ -399,6 +399,7 @@ def parsed_arguments(name, description):
                 [--conda-env-name CONDA_ENV_NAME] \\
                 [--additional-strains ADDITIONAL_STRAINS] \\
                 [--batch-id BATCH_ID] \\
+                [--bootstrap-trees] \\
                 --input INPUT [INPUT ...] \\
                 --output OUTPUT
 
@@ -444,7 +445,6 @@ def parsed_arguments(name, description):
                                 the option listed below.
                                   Example:
                                     --additional-strains resources/mpox_additional_strains.fa.gz
-
           --batch-id BATCH_ID
                                 Unique identifer to associate with a batch of samples.
                                 This option can be provided to ensure that project-level
@@ -462,6 +462,13 @@ def parsed_arguments(name, description):
                                 Here is a list of valid or acceptable characters: "aA-Zz",
                                 "0-9", "-", "_".
                                   Example: --batch-id "2024-04-01"
+          --bootstrap-trees
+                                Computes branch support by bootstraping data. If this flag
+                                is provided, raxml-ng is run in an all-in-one (ML search + 
+                                bootstrapping) mode via its '--all' option. Branch supports,
+                                calculated by bootstrapping, will be added to the best 
+                                scoring tree. 
+                                  Example: --bootstrap-trees
 
         {3}{4}Orchestration options:{5}
           --mode {{local,slurm}}  
@@ -593,6 +600,7 @@ def parsed_arguments(name, description):
                     --output mpox-seek_output \\
                     --additional-strains resources/mpox_additional_strains.fa.gz \\
                     --batch-id "$(date '+%Y-%m-%d-%H-%M')" \\
+                    --bootstrap-trees \\
                     --mode local \\
                     --use-conda \\
                     --conda-env-name mpox-seek \\
@@ -609,6 +617,7 @@ def parsed_arguments(name, description):
                     --output mpox-seek_output \\
                     --additional-strains resources/mpox_additional_strains.fa.gz \\
                     --batch-id "$(date '+%Y-%m-%d-%H-%M')" \\
+                    --bootstrap-trees \\
                     --use-conda \\
                     --conda-env-name mpox-seek \\
                     --mode local
@@ -663,6 +672,16 @@ def parsed_arguments(name, description):
         type = lambda option: valid_directory(parser, option.replace(' ', '_')),
         required = False,
         default = '',
+        help = argparse.SUPPRESS
+    )
+
+    # Add branch support/confidence values
+    # to best tree via bootstrapping
+    subparser_run.add_argument(
+        '--bootstrap-trees',
+        action = 'store_true',
+        required = False,
+        default = False,
         help = argparse.SUPPRESS
     )
 

@@ -18,6 +18,7 @@ rule tree:
     params:
         rname  = 'tree',
         prefix = join(workpath, "project", batch_id, "mpox_phylogeny"),
+        bootrapping_options = lambda _: "--all --bs-metric fbp,tbe" if bootstrap_trees else ""
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)
     shell: 
@@ -31,5 +32,5 @@ rule tree:
             --model GTR+G \\
             --msa-format FASTA \\
             --prefix {params.prefix} \\
-            --seed 42
+            --seed 42 {params.bootrapping_options}
         """
