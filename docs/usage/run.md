@@ -55,8 +55,8 @@ Each of the following arguments are optional, and do not need to be provided.
 
   `--additional-strains ADDITIONAL_STRAINS`  
 > **Genomic fasta file of additional monekypox strains to add to the phylogenetic tree.**  
-> *type: FASTA file*
-> *default: none*
+> *type: FASTA file*  
+> *default: none*  
 > 
 > This is a genomic fasta file of additional monekypox strains to add to the phylogenetic tree. By default, a phylogenetic tree is build with your input samples and the [reference genome](https://github.com/OpenOmics/mpox-seek/blob/main/resources/mpox_NC_003310_1_pcr_sequence.fa), see "mpox_pcr_sequence" in "[config/genome.json](https://github.com/OpenOmics/mpox-seek/blob/main/config/genome.json)" for the path to this file. When this option is provided a phylogenetic tree containing your input samples, the reference genome, and any additional monkeypox strain the provided file are built. We have provided a genomic fasta file of additional strains with mpox-seek. Please see "[resources/mpox_additional_strains.fa.gz](https://github.com/OpenOmics/mpox-seek/blob/main/resources/)" for more information. This file can be provided directly to this option. We highly recommended using this option with the `--batch-id` option below to avoid any files from being overwritten between runs of the pipeline.  
 > 
@@ -65,8 +65,8 @@ Each of the following arguments are optional, and do not need to be provided.
 ---
   `--batch-id BATCH_ID`  
 > **Unique identifer to associate with a batch of samples.**  
-> *type: string*
-> *default: none*
+> *type: string*  
+> *default: none*  
 > 
 > This option can be provided to ensure that project-level output files are not over-written between runs of the pipeline. As so, it is good to always provide this option. By default, project-level files in the "project" will get over-written between pipeline runs if this option is not provided. Any identifer provided to this option will be used to create a sub-directory in the project folder. This ensures project-level files (which are unique) will  not get over-written as new data/samples are processed. A unique batch id should be provided between runs. This batch id should be composed of alphanumeric characters and it should not contain a white space or tab characters. Here is a list of valid or acceptable characters: `aA-Zz`, `0-9`, `-`, `_`. 
 > 
@@ -75,8 +75,8 @@ Each of the following arguments are optional, and do not need to be provided.
 ---
   `--bootstrap-trees`  
 > **Computes branch support by bootstraping data.**  
-> *type: boolean flag*
-> *default: false*
+> *type: boolean flag*  
+> *default: false*  
 > 
 > This option will empirically compute the support for each branch by bootstrapping the data. If this flag is provided, [`raxml-ng`](https://github.com/amkozlov/raxml-ng/wiki/Tutorial#bootstrapping) is run in an all-in-one (ML search + bootstrapping) mode via its `--all` option. Branch supports, calculated by bootstrapping, will be added to the best scoring tree. By default, the pipeline will not created a tree with transferred bootstrapped supports.
 > 
@@ -107,7 +107,7 @@ Each of the following arguments are optional, and do not need to be provided.
   `--mode {local,slurm}`  
 > **Execution Method.**  
 > *type: string*  
-> *default: local*
+> *default: local*  
 > 
 > Execution Method. Defines the mode or method of execution. Vaild mode options include: slurm or local. 
 >
@@ -122,8 +122,8 @@ Each of the following arguments are optional, and do not need to be provided.
 ---  
   `--job-name JOB_NAME`  
 > **Set the name of the pipeline's master job.**  
-> *type: string*
-> *default: pl:mpox-seek*
+> *type: string*  
+> *default: pl:mpox-seek*  
 > 
 > When submitting the pipeline to a job scheduler, like SLURM, this option always you to set the name of the pipeline's master job. By default, the name of the pipeline's master job is set to "pl:mpox-seek".
 > 
@@ -133,7 +133,7 @@ Each of the following arguments are optional, and do not need to be provided.
   `--singularity-cache SINGULARITY_CACHE`  
 > **Overrides the $SINGULARITY_CACHEDIR environment variable.**  
 > *type: path*  
-> *default: `--output OUTPUT/.singularity`*
+> *default: `--output OUTPUT/.singularity`*  
 >
 > Singularity will cache image layers pulled from remote registries. This ultimately speeds up the process of pull an image from DockerHub if an image layer already exists in the singularity cache directory. By default, the cache is set to the value provided to the `--output` argument. Please note that this cache cannot be shared across users. Singularity strictly enforces you own the cache directory and will return a non-zero exit code if you do not own the cache directory! See the `--sif-cache` option to create a shareable resource. 
 > 
@@ -152,7 +152,7 @@ Each of the following arguments are optional, and do not need to be provided.
   `--threads THREADS`   
 > **Max number of threads for each process.**  
 > *type: int*  
-> *default: 2*
+> *default: 2*  
 > 
 > Max number of threads for each process. This option is more applicable when running the pipeline with `--mode local`.  It is recommended setting this vaule to the maximum number of CPUs available on the host machine.
 > 
@@ -162,7 +162,7 @@ Each of the following arguments are optional, and do not need to be provided.
   `--tmp-dir TMP_DIR`   
 > **Max number of threads for each process.**  
 > *type: path*  
-> *default: `/lscratch/$SLURM_JOBID`*
+> *default: `/lscratch/$SLURM_JOBID`*  
 > 
 > Path on the file system for writing temporary output files. By default, the temporary directory is set to '/lscratch/$SLURM_JOBID' for backwards compatibility with the NIH's Biowulf cluster; however, if you are running the pipeline on another cluster, this option will need to be specified. Ideally, this path should point to a dedicated location on the filesystem for writing tmp files. On many systems, this location is set to somewhere in /scratch. If you need to inject a variable into this string that should NOT be expanded, please quote this options value in single quotes.
 > 
@@ -180,7 +180,7 @@ Each of the following arguments are optional, and do not need to be provided.
 ---  
   `--use-conda`   
 > **Use Conda/mamba instead of Singularity.**  
-> *type: boolean flag*
+> *type: boolean flag*  
 > 
 > Use Conda/Mamba instead of Singularity. By default, the pipeline uses singularity for handling required software dependencies. This option overrides that behavior, and it will use Conda/mamba instead of Singularity. The use of Singuarity and Conda are mutually exclusive. Please note that conda and mamba must be in your $PATH prior to running the pipeline. This option will build a conda environment on the fly prior to the pipeline's execution. As so, this step requires internet access. To run mpox-seek in an offline mode with conda, please see the `--conda-env-name` option below. 
 > 
