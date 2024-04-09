@@ -17,6 +17,7 @@ $ mpox-seek run [--help] \
       [--conda-env-name CONDA_ENV_NAME] \
       [--additional-strains ADDITIONAL_STRAINS] \
       [--batch-id BATCH_ID] \
+      [--bootstrap-trees] \
       --input INPUT [INPUT ...] \
       --output OUTPUT
 ```
@@ -71,6 +72,15 @@ Each of the following arguments are optional, and do not need to be provided.
 > 
 > ***Example:*** `--batch-id "2024-04-01"`
 
+---
+  `--bootstrap-trees`  
+> **Computes branch support by bootstraping data.**  
+> *type: boolean flag*
+> *default: false*
+> 
+> This option will empirically compute the support for each branch by bootstrapping the data. If this flag is provided, [`raxml-ng`](https://github.com/amkozlov/raxml-ng/wiki/Tutorial#bootstrapping) is run in an all-in-one (ML search + bootstrapping) mode via its `--all` option. Branch supports, calculated by bootstrapping, will be added to the best scoring tree. By default, the pipeline will not created a tree with transferred bootstrapped supports.
+> 
+> ***Example:*** `--bootstrap-trees`
 
 ### 2.3 Orchestration options
 
@@ -221,6 +231,7 @@ The example below shows how run the pipeline locally using conda/mamba. If you h
             --output mpox-seek_output \
             --additional-strains resources/mpox_additional_strains.fa.gz \
             --batch-id "$(date '+%Y-%m-%d-%H-%M')" \
+            --bootstrap-trees \
             --mode local \
             --use-conda \
             --dry-run
@@ -231,11 +242,13 @@ The example below shows how run the pipeline locally using conda/mamba. If you h
   # unique batch identifer to project-
   # level files to ensure no over
   # writting of files occurs, format:
-  # YYYY-MM-DD-HH-MM.
+  # YYYY-MM-DD-HH-MM. Support for each
+  # branch is calculated via bootstrapping.
   ./mpox-seek run --input .tests/*.fastq.gz \
             --output mpox-seek_output \
             --additional-strains resources/mpox_additional_strains.fa.gz \
             --batch-id "$(date '+%Y-%m-%d-%H-%M')" \
+            --bootstrap-trees \
             --use-conda \
             --mode local
 ```
