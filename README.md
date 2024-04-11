@@ -7,7 +7,7 @@
   [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10957607.svg)](https://doi.org/10.5281/zenodo.10957607) [![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/OpenOmics/mpox-seek?color=blue&include_prereleases)](https://github.com/OpenOmics/mpox-seek/releases) [![Docker Pulls](https://img.shields.io/docker/pulls/skchronicles/mpox-seek)](https://hub.docker.com/repository/docker/skchronicles/mpox-seek)<br> [![tests](https://github.com/OpenOmics/mpox-seek/workflows/tests/badge.svg)](https://github.com/OpenOmics/mpox-seek/actions/workflows/main.yaml) [![docs](https://github.com/OpenOmics/mpox-seek/workflows/docs/badge.svg)](https://github.com/OpenOmics/mpox-seek/actions/workflows/docs.yml) [![GitHub issues](https://img.shields.io/github/issues/OpenOmics/mpox-seek?color=brightgreen)](https://github.com/OpenOmics/mpox-seek/issues)  [![GitHub license](https://img.shields.io/github/license/OpenOmics/mpox-seek)](https://github.com/OpenOmics/mpox-seek/blob/main/LICENSE) 
   
   <i>
-    mpox-seek is an awesome portable and fast oxford nanopore pipeline for targeted monkeypox sequencing.
+    mpox-seek is an awesome, portable and fast oxford nanopore pipeline for targeted monkeypox sequencing.
   </i>
 </div>
 
