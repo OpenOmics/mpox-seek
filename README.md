@@ -4,10 +4,10 @@
   
   **_Targeted ONT Pipeline for Monkeypox_**
 
-  [![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/OpenOmics/mpox-seek?color=blue&include_prereleases)](https://github.com/OpenOmics/mpox-seek/releases) [![tests](https://github.com/OpenOmics/mpox-seek/workflows/tests/badge.svg)](https://github.com/OpenOmics/mpox-seek/actions/workflows/main.yaml) [![docs](https://github.com/OpenOmics/mpox-seek/workflows/docs/badge.svg)](https://github.com/OpenOmics/mpox-seek/actions/workflows/docs.yml) [![GitHub issues](https://img.shields.io/github/issues/OpenOmics/mpox-seek?color=brightgreen)](https://github.com/OpenOmics/mpox-seek/issues)  [![GitHub license](https://img.shields.io/github/license/OpenOmics/mpox-seek)](https://github.com/OpenOmics/mpox-seek/blob/main/LICENSE) 
+  [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10957607.svg)](https://doi.org/10.5281/zenodo.10957607) [![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/OpenOmics/mpox-seek?color=blue&include_prereleases)](https://github.com/OpenOmics/mpox-seek/releases) [![Docker Pulls](https://img.shields.io/docker/pulls/skchronicles/mpox-seek)](https://hub.docker.com/repository/docker/skchronicles/mpox-seek)<br> [![tests](https://github.com/OpenOmics/mpox-seek/workflows/tests/badge.svg)](https://github.com/OpenOmics/mpox-seek/actions/workflows/main.yaml) [![docs](https://github.com/OpenOmics/mpox-seek/workflows/docs/badge.svg)](https://github.com/OpenOmics/mpox-seek/actions/workflows/docs.yml) [![GitHub issues](https://img.shields.io/github/issues/OpenOmics/mpox-seek?color=brightgreen)](https://github.com/OpenOmics/mpox-seek/issues)  [![GitHub license](https://img.shields.io/github/license/OpenOmics/mpox-seek)](https://github.com/OpenOmics/mpox-seek/blob/main/LICENSE) 
   
   <i>
-    This is the home of the pipeline, mpox-seek. mpox-seek is a streamlined oxford nanopore pipeline for targeted monkeypox sequencing.
+    mpox-seek is an awesome portable and fast oxford nanopore pipeline for targeted monkeypox sequencing.
   </i>
 </div>
 
@@ -30,9 +30,9 @@ Before getting started, we highly recommend reading through the [usage](https://
 For more information about issues or trouble-shooting a problem, please checkout our [FAQ](https://openomics.github.io/mpox-seek/faq/questions/) prior to [opening an issue on Github](https://github.com/OpenOmics/mpox-seek/issues).
 
 ## Dependencies
-**Requires:** `singularity>=3.5`  `snakemake<8.0`  `conda/mamba (optional)` 
+**Requires:** `snakemake<8.0`  `conda/mamba` `singularity>=3.5 (optional)`  
 
-[Snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html) must be installed on the target system. Snakemake is a workflow manager that orchestrates each step of the pipeline. The second dependency, i.e [singularity](https://singularity.lbl.gov/all-releases) OR [conda/mamba](https://github.com/conda-forge/miniforge#mambaforge), handles the dowloading/installation of any remaining software dependencies. By default, the pipeline will utilize singularity to guarantee the highest level of reproducibility; however, the `--use-conda` option of the [run](https://openomics.github.io/mpox-seek/usage/run/) sub command can be provided to  use conda/mamba instead of singularity. If possible, we recommend using singularity over conda for reproducibility; however, it is worth noting that singularity and conda produce identical results for this pipeline. 
+[Snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html) must be installed on the target system. Snakemake is a workflow manager that orchestrates each step of the pipeline. The second dependency, i.e [singularity](https://singularity.lbl.gov/all-releases) OR [conda/mamba](https://github.com/conda-forge/miniforge#mambaforge), handles the dowloading/installation of any remaining software dependencies. By default, the pipeline will utilize singularity to guarantee the highest level of reproducibility; however, the `--use-conda` option of the [run](https://openomics.github.io/mpox-seek/usage/run/) sub command can be provided to  use conda/mamba instead of singularity. If possible, we recommend using singularity over conda for reproducibility; however, it is worth noting that singularity and conda produce identical results for this pipeline. If you plan on running this pipeline on a laptop or desktop computer, we recommend using conda/mamba over singularity.
 
 If you are running the pipeline on Windows, please use the [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install). Singularity can be installed on WSL following these [instructions](https://www.blopig.com/blog/2021/09/using-singularity-on-windows-with-wsl2/).
 
@@ -53,8 +53,44 @@ module load snakemake singularity
 For more detailed installation instructions, please see our [setup page](https://openomics.github.io/mpox-seek/setup/).
 
 ## Contribute 
+
 This site is a living document, created for and by members like you. mpox-seek is maintained by the members of OpenOmics and is improved by continous feedback! We encourage you to contribute new content and make improvements to existing content via pull request to our [GitHub repository](https://github.com/OpenOmics/mpox-seek).
 
+## Cite
+
+If you use this software, please cite it as below:  
+
+<details>
+  <summary><b><i>@BibText</i></b></summary>
+ 
+```text
+@software{Kuhn_OpenOmics_mpox-seek_2024,
+  author       = {Skyler Kuhn and Schaughency, Paul},
+  title        = {OpenOmics/mpox-seek: v0.1.0},
+  month        = apr,
+  year         = 2024,
+  publisher    = {Zenodo},
+  version      = {v0.1.0},
+  doi          = {10.5281/zenodo.10957607},
+  url          = {https://doi.org/10.5281/zenodo.10957607}
+}
+```
+
+</details>
+
+<details>
+  <summary><b><i>@APA</i></b></summary>
+
+```text
+Skyler Kuhn, & Schaughency, P. (2024). OpenOmics/mpox-seek: v0.1.0 (v0.1.0). Zenodo. https://doi.org/10.5281/zenodo.10957607
+```
+
+</details>
+
+For more citation style options, please visit the pipeline's [Zenodo page](https://doi.org/10.5281/zenodo.10957607).
+
+
 ## References
+
 <sup>**1.**  Kurtzer GM, Sochat V, Bauer MW (2017). Singularity: Scientific containers for mobility of compute. PLoS ONE 12(5): e0177459.</sup>  
 <sup>**2.**  Koster, J. and S. Rahmann (2018). "Snakemake-a scalable bioinformatics workflow engine." Bioinformatics 34(20): 3600.</sup>  
