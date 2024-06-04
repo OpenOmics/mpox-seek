@@ -22,7 +22,7 @@ rule bigwig:
         cpm_bw = join(workpath, "{name}", "bams", "{name}.cpm_normalized.bw"),
         raw_bw = join(workpath, "{name}", "bams", "{name}.raw_coverage.bw"),
     params:
-        rname  = 'bamcoverage',
+        rname  = 'bigwig',
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)
     shell: 
@@ -46,4 +46,60 @@ rule bigwig:
             -of bigwig \\
             -bs 1 \\
             -p 1
+        """
+
+
+# Data processing rules to visualize
+# coverage along the genome
+rule plot_coverage:
+    """
+    Data visualization step to plot the coverage of the reads along the genome
+    for each sample. The raw and normalized bigwig files will be plotted for each
+    sample. The normalized bigwig allows for comparison of coverage across samples,
+    while the raw bigwig file can be used to visualize the raw read coverage of each
+    sample to view the observed sequencing depth along the genome.
+    @Input:
+        CPM normalized bigwig file
+        Raw coverage bigwig file
+    @Output:
+        Coverage PNG plot
+    """
+    input:
+        raw_bw = join(workpath, "{name}", "bams", "{name}.raw_coverage.bw"),
+    output:
+        ini = join(workpath, "{name}", "plots", "{name}.coverage_plot.ini"),
+        pdf = join(workpath, "{name}", "plots", "{name}.coverage_plot.pdf"),
+    params:
+        rname  = 'plotcoverage',
+        ref_fa  = config['references']['mpox_pcr_sequence'],
+    conda: depending(conda_yaml_or_named_env, use_conda)
+    container: depending(config['images']['mpox-seek'], use_singularity)
+    shell: 
+        """
+        # Create a config/ini file for 
+        # DeepTools pyGenomeTracks:
+        # https://pygenometracks.readthedocs.io/en/latest/index.html
+        make_tracks_file \\
+            --trackFiles {input.raw_bw} \\
+            -o {output.ini}
+
+        # Update config file to increase 
+        # height and number of bins and 
+        # remove suffix from track name
+        sed -i 's/\.raw_coverage$//g' \\
+            {output.ini}
+        sed -i 's/height = 2/height = 4/g' \\
+            {output.ini}
+        sed -i 's/number_of_bins = 700/number_of_bins = 1000/g' \\
+            {output.ini}
+
+        # Plot coverage along the genome,
+        # pyGenomeTracks requires a region
+        # is provided, so we will use the
+        # full length of the reference genome
+        region=$(samtools faidx {params.ref_fa} -o /dev/stdout | head -1 | awk -F '\\t' '{{print $1":1-"$2}}')
+        pyGenomeTracks \\
+            --tracks {output.ini} \\
+            -o {output.pdf} \\
+            --region "$region"
         """

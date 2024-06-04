@@ -136,6 +136,10 @@ rule all:
             join(workpath, "{name}", "bams", "{name}.raw_coverage.bw"),
             name=provided(samples, plot_coverage)
         ),
+        expand(
+            join(workpath, "{name}", "plots", "{name}.coverage_plot.pdf"),
+            name=provided(samples, plot_coverage)
+        ),
 
 
 # Import rules 
