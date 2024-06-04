@@ -400,6 +400,7 @@ def parsed_arguments(name, description):
                 [--additional-strains ADDITIONAL_STRAINS] \\
                 [--batch-id BATCH_ID] \\
                 [--bootstrap-trees] \\
+                [--plot-coverage] \\
                 --input INPUT [INPUT ...] \\
                 --output OUTPUT
 
@@ -469,6 +470,15 @@ def parsed_arguments(name, description):
                                 calculated by bootstrapping, will be added to the best 
                                 scoring tree. 
                                   Example: --bootstrap-trees
+        
+          --plot-coverage
+                                Plots coverage of along the reference genome. If this flag            
+                                is provided, per-sample plots of raw and library normalized 
+                                coverage will be created. This plot can be useful for ident-
+                                ifying samples or regions of the reference genome with low 
+                                coverage. The library normalized coverage track is useful 
+                                for comparing coverage across samples.
+                                  Example: --plot-coverage
 
         {3}{4}Orchestration options:{5}
           --mode {{local,slurm}}  
@@ -679,6 +689,15 @@ def parsed_arguments(name, description):
     # to best tree via bootstrapping
     subparser_run.add_argument(
         '--bootstrap-trees',
+        action = 'store_true',
+        required = False,
+        default = False,
+        help = argparse.SUPPRESS
+    )
+
+    # Plot coverage of samples
+    subparser_run.add_argument(
+        '--plot-coverage',
         action = 'store_true',
         required = False,
         default = False,

@@ -41,6 +41,9 @@ if strains_fasta.endswith('.gz') or strains_fasta.endswith('.gzip'):
 # to the best tree via bootstrapping data 
 bootstrap_trees = str_bool(config['options']['bootstrap_trees'])
 
+# Plot coverage of reads across the genome
+plot_coverage = str_bool(config['options']['plot_coverage'])
+
 # Find list of sample which 
 # have mulitple barcodes, this 
 # means they need to be merged  
@@ -102,7 +105,7 @@ rule all:
         # Align reads against monkeypox reference,
         # @imported from `rule minimap2` in rules/map.smk
         expand(
-            join(workpath, "{name}", "bams", "{name}.sam"),
+            join(workpath, "{name}", "bams", "{name}.bam"),
             name=samples
         ),
         # Create a consensus sequence from alignments
@@ -121,6 +124,18 @@ rule all:
         # Build a phylogentic tree from MSA,
         # @imported from `rule tree` in rules/tree.smk
         join(workpath, "project", batch_id, "mpox_phylogeny.raxml.bestTree"),
+        # Visualize coverage of reads across the genome,
+        # imported from `rule bigwig` in rules/visualize.smk,
+        # These rules are conditionally run if --plot-coverage
+        # option is provided.
+        expand(
+            join(workpath, "{name}", "bams", "{name}.cpm_normalized.bw"),
+            name=provided(samples, plot_coverage)
+        ),
+        expand(
+            join(workpath, "{name}", "bams", "{name}.raw_coverage.bw"),
+            name=provided(samples, plot_coverage)
+        ),
 
 
 # Import rules 
@@ -128,3 +143,4 @@ include: join("rules", "common.smk")
 include: join("rules", "trim.smk")
 include: join("rules", "map.smk")
 include: join("rules", "tree.smk")
+include: join("rules", "visualize.smk")

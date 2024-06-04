@@ -13,3 +13,5 @@ dependencies:
  - viral_consensus=0.0.4
  - raxml-ng=1.2.1
  - gawk
+ - deeptools
+ - samtools

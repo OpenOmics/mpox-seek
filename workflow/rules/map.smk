@@ -11,7 +11,8 @@ rule minimap2:
     input:
         fq   = join(workpath, "{name}", "fastqs", "{name}.trimmed.fastq.gz"),
     output:
-        sam  = join(workpath, "{name}", "bams", "{name}.sam"),
+        bam  = join(workpath, "{name}", "bams", "{name}.bam"),
+        bai  = join(workpath, "{name}", "bams", "{name}.bam.bai"),
     params:
         rname  = 'minimap2',
         ref_fa  = config['references']['mpox_pcr_sequence'],
@@ -27,7 +28,11 @@ rule minimap2:
             --sam-hit-only \\
             {params.ref_fa} \\
             {input.fq} \\
-        > {output.sam}
+        | samtools sort \\
+            -O bam \\
+            --write-index \\
+            -o {output.bam}##idx##{output.bai} \\
+            -
         """
 
 
@@ -42,7 +47,7 @@ rule consensus:
         Consensus FASTA file with samples names for sequence identifers
     """
     input:
-        sam = join(workpath, "{name}", "bams", "{name}.sam"),
+        bam = join(workpath, "{name}", "bams", "{name}.bam"),
     output:
         fa    = join(workpath, "{name}", "consensus", "{name}_consensus.fa"),
         fixed = join(workpath, "{name}", "consensus", "{name}_consensus_seqid.fa"),
@@ -55,7 +60,7 @@ rule consensus:
         """
         # Create a consensus sequence of aligned reads
         viral_consensus \\
-            -i {input.sam} \\
+            -i {input.bam} \\
             -r {params.ref_fa} \\
             -o {output.fa}
         
@@ -63,7 +68,7 @@ rule consensus:
         # file to contain only the sample name, by
         # default viral_consensus contains the info
         # related to the command that was run.
-        awk '{{split($0,a," "); n=split(a[4],b,"/"); gsub(/\\.sam$/,"",b[n]); if(a[2]) print ">"b[n]; else print; }}' \\
+        awk '{{split($0,a," "); n=split(a[4],b,"/"); gsub(/\\.bam$/,"",b[n]); if(a[2]) print ">"b[n]; else print; }}' \\
             {output.fa} \\
             > {output.fixed}
         """
