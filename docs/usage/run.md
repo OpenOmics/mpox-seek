@@ -82,6 +82,16 @@ Each of the following arguments are optional, and do not need to be provided.
 > 
 > ***Example:*** `--bootstrap-trees`
 
+---
+  `--plot-coverage`  
+> **Plots coverage of each sample.**  
+> *type: boolean flag*  
+> *default: false*  
+>  
+>  This option will plot coverage along the reference genome. If this flag is provided, per-sample plots of raw coverage will be created. This plot can be useful for identifying samples or regions of the reference genome with low coverage. By default, the pipeline will not create any coverage plots.  
+>  
+> ***Example:*** `--plot-coverage`  
+
 ### 2.3 Orchestration options
 
 Each of the following arguments are optional, and do not need to be provided. 

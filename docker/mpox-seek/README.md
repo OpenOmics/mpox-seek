@@ -8,20 +8,20 @@ docker image ls
 
 # Build from Dockerfile
 ln -f ../../workflow/envs/mpox.yaml .
-docker build --no-cache -f Dockerfile --tag=mpox-seek:v0.1.0 .
+docker build --no-cache -f Dockerfile --tag=mpox-seek:v0.2.0 .
 
 # Testing, take a peek inside
-docker run -ti mpox-seek:v0.1.0 /bin/bash
+docker run -ti mpox-seek:v0.2.0 /bin/bash
 
 # Updating Tag  before pushing to DockerHub
-docker tag mpox-seek:v0.1.0 skchronicles/mpox-seek:v0.1.0
-docker tag mpox-seek:v0.1.0 skchronicles/mpox-seek         # latest
+docker tag mpox-seek:v0.2.0 skchronicles/mpox-seek:v0.2.0
+docker tag mpox-seek:v0.2.0 skchronicles/mpox-seek         # latest
 
 # Check out new tag(s)
 docker image ls
 
 # Push new tagged image to DockerHub
-docker push skchronicles/mpox-seek:v0.1.0
+docker push skchronicles/mpox-seek:v0.2.0
 docker push skchronicles/mpox-seek:latest
 ```
 
@@ -30,7 +30,7 @@ docker push skchronicles/mpox-seek:latest
 Scan your image for known vulnerabilities:
 
 ```bash
-docker scan mpox-seek:v0.1.0
+docker scan mpox-seek:v0.2.0
 ```
 
 > **Please Note**: Any references to `skchronicles` should be replaced your username if you would also like to push the image to a non-org account.

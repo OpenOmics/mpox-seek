@@ -473,11 +473,9 @@ def parsed_arguments(name, description):
         
           --plot-coverage
                                 Plots coverage of along the reference genome. If this flag            
-                                is provided, per-sample plots of raw and library normalized 
-                                coverage will be created. This plot can be useful for ident-
-                                ifying samples or regions of the reference genome with low 
-                                coverage. The library normalized coverage track is useful 
-                                for comparing coverage across samples.
+                                is provided, per-sample plots of raw coverage will be made. 
+                                This plot can be useful for identifying samples or regions
+                                of the reference genome with low coverage. 
                                   Example: --plot-coverage
 
         {3}{4}Orchestration options:{5}
