@@ -18,6 +18,7 @@ $ mpox-seek run [--help] \
       [--additional-strains ADDITIONAL_STRAINS] \
       [--batch-id BATCH_ID] \
       [--bootstrap-trees] \
+      [--plot-coverage] \
       --input INPUT [INPUT ...] \
       --output OUTPUT
 ```
