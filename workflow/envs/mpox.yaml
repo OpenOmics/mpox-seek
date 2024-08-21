@@ -16,3 +16,4 @@ dependencies:
  - deeptools
  - samtools
  - pygenometracks 
+ - sed
