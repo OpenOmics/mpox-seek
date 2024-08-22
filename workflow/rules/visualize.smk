@@ -69,6 +69,8 @@ rule plot_coverage:
     output:
         ini = join(workpath, "{name}", "plots", "{name}.coverage_plot.ini"),
         pdf = join(workpath, "{name}", "plots", "{name}.coverage_plot.pdf"),
+        ini_log2 = join(workpath, "{name}", "plots", "{name}.coverage_plot_log2.ini"),
+        pdf_log2 = join(workpath, "{name}", "plots", "{name}.coverage_plot_log2.pdf"),
     params:
         rname  = 'plotcoverage',
         ref_fa  = config['references']['mpox_pcr_sequence'],
@@ -86,20 +88,35 @@ rule plot_coverage:
         # Update config file to increase 
         # height and number of bins and 
         # remove suffix from track name
+        # Raw coverage plot config
         sed -i 's/\.raw_coverage$//g' \\
             {output.ini}
         sed -i 's/height = 2/height = 4/g' \\
             {output.ini}
         sed -i 's/number_of_bins = 700/number_of_bins = 1000/g' \\
             {output.ini}
+        # log2 coverage plot config
+        sed '$i\\transform = log' \\
+            {output.ini} \\
+        > {output.ini_log2}
+        # Adding a small pseudocount
+        # to avoid taking the log(0)
+        sed -i '$i\\log_pseudocount = 1' \\
+            {output.ini_log2}
 
         # Plot coverage along the genome,
         # pyGenomeTracks requires a region
         # is provided, so we will use the
         # full length of the reference genome
         region=$(samtools faidx {params.ref_fa} -o /dev/stdout | head -1 | awk -F '\\t' '{{print $1":1-"$2}}')
+        # Raw coverage plot
         pyGenomeTracks \\
             --tracks {output.ini} \\
             -o {output.pdf} \\
+            --region "$region"
+        # log2 coverage plot
+        pyGenomeTracks \\
+            --tracks {output.ini_log2} \\
+            -o {output.pdf_log2} \\
             --region "$region"
         """
