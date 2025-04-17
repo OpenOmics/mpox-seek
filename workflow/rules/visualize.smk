@@ -73,7 +73,7 @@ rule plot_coverage:
         pdf_log2 = join(workpath, "{name}", "plots", "{name}.coverage_plot_log2.pdf"),
     params:
         rname  = 'plotcoverage',
-        ref_fa  = config['references']['mpox_pcr_sequence'],
+        ref_fa  = ref_fa,
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)
     shell: 

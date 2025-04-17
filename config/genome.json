@@ -1,5 +1,6 @@
 {
     "references": {
-        "mpox_pcr_sequence": "resources/mpox_NC_003310_1_pcr_sequence.fa"
+        "mpox_pcr_sequence": "resources/mpox_NC_003310_1_pcr_sequence.fa",
+        "mpox_wgs_sequence": "resources/mpox_NC_003310_1_wgs_sequence.fa"
     }
 }

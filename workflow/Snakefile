@@ -44,6 +44,21 @@ bootstrap_trees = str_bool(config['options']['bootstrap_trees'])
 # Plot coverage of reads across the genome
 plot_coverage = str_bool(config['options']['plot_coverage'])
 
+# Input data contains whole genome sequences,
+# default: False
+wgs_mode = str_bool(
+    config['options'].get('whole_genome_sequencing', False)
+)
+# Mpox genomeic reference file, 
+# By default it uses a FASTA 
+# file created from PCR amplified
+# regions, but if WGS option is 
+# provided it uses the entire 
+# mpox genome sequence
+ref_fa = config['references']['mpox_pcr_sequence']
+if wgs_mode:
+    ref_fa = config['references'].get('mpox_wgs_sequence', ref_fa)
+
 # Find list of sample which 
 # have mulitple barcodes, this 
 # means they need to be merged  

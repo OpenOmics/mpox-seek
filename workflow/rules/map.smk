@@ -15,7 +15,7 @@ rule minimap2:
         bai  = join(workpath, "{name}", "bams", "{name}.bam.bai"),
     params:
         rname  = 'minimap2',
-        ref_fa  = config['references']['mpox_pcr_sequence'],
+        ref_fa  = ref_fa,
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)
     shell: 
@@ -53,7 +53,7 @@ rule consensus:
         fixed = join(workpath, "{name}", "consensus", "{name}_consensus_seqid.fa"),
     params:
         rname  = 'consensus',
-        ref_fa  = config['references']['mpox_pcr_sequence'],
+        ref_fa  = ref_fa,
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)
     shell: 
@@ -92,7 +92,7 @@ rule concat:
         fa  = join(workpath, "project", batch_id, "consensus.fa"),
     params:
         rname  = 'premafft',
-        ref_fa = config['references']['mpox_pcr_sequence'],
+        ref_fa = ref_fa,
         # Use decompressed strains fasta file if
         # a gzipped input file was provided, else
         # use strains_fa (either file or empty string)

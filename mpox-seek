@@ -401,6 +401,7 @@ def parsed_arguments(name, description):
                 [--batch-id BATCH_ID] \\
                 [--bootstrap-trees] \\
                 [--plot-coverage] \\
+                [--whole-genome-sequencing] \\
                 --input INPUT [INPUT ...] \\
                 --output OUTPUT
 
@@ -431,14 +432,19 @@ def parsed_arguments(name, description):
                                 Genomic fasta file of additional monekypox strains to
                                 add to the phylogenetic tree. By default, a phylogenetic
                                 tree is build with your input samples and the reference
-                                genome, see "mpox_pcr_sequence" in "config/genome.json"
-                                for the path to this file. When this option is provided
-                                a phylogenetic tree containing your input samples, the
-                                reference genome, and any additional monkeypox strain
-                                the provided file are built. We have provided a genomic
+                                genome, see "mpox_pcr_sequence" or "mpox_wgs_sequence"
+                                in "config/genome.json" for the path to this file. When
+                                this option is provided a phylogenetic tree containing
+                                your input samples, the reference genome (either PCR or
+                                WGS depending on whether the --whole-genome-sequencing
+                                option was provided), and any additional mpox strains in
+                                this provided file are built. We have provided a genomic
                                 fasta file of additional strains with mpox-seek. Please
-                                see "resources/mpox_additional_strains.fa.gz" for more
-                                information. This file can be provided directly to this
+                                see "resources/mpox_additional_strains.fa.gz" if you
+                                are working with PCR amplified sequencing data or
+                                "resources/mpox_wgs_additional_strains.fa.gz" if you
+                                are working with whole genome sequencing (WGS) data.
+                                One of these files can be provided directly to this
                                 option. We highly recommended using this option with
                                 the "--batch-id" option below to avoid any files from 
                                 being overwritten between runs of the pipeline. For more
@@ -470,13 +476,24 @@ def parsed_arguments(name, description):
                                 calculated by bootstrapping, will be added to the best 
                                 scoring tree. 
                                   Example: --bootstrap-trees
-        
           --plot-coverage
                                 Plots coverage of along the reference genome. If this flag            
                                 is provided, per-sample plots of raw coverage will be made. 
                                 This plot can be useful for identifying samples or regions
                                 of the reference genome with low coverage. 
                                   Example: --plot-coverage
+          --whole-genome-sequencing
+                                This flag is used to indicate that the input FastQ files
+                                are whole genome sequences. By default, the pipeline will
+                                assume that the input FastQ files are amplicon sequences.
+                                This option is only required if the input FastQ files
+                                contain whole genome sequences. If provided, the pipeline
+                                will align reads against the entire monkeypox genome. If
+                                this option is provided AND you would like to build a
+                                phylogenetic tree with additional strains, please provide
+                                the following file to the additional strains option:
+                                "resources/mpox_wgs_additional_strains.fa.gz".
+                                  Example: --whole-genome-sequencing
 
         {3}{4}Orchestration options:{5}
           --mode {{local,slurm}}  
@@ -696,6 +713,16 @@ def parsed_arguments(name, description):
     # Plot coverage of samples
     subparser_run.add_argument(
         '--plot-coverage',
+        action = 'store_true',
+        required = False,
+        default = False,
+        help = argparse.SUPPRESS
+    )
+
+    # Input fastq files contain
+    # WGS mpox data
+    subparser_run.add_argument(
+        '--whole-genome-sequencing',
         action = 'store_true',
         required = False,
         default = False,
