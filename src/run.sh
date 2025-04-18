@@ -212,8 +212,8 @@ function submit(){
           # Create sbacth script to build index
     cat << EOF > kickoff.sh
 #!/usr/bin/env bash
-#SBATCH --cpus-per-task=16 
-#SBATCH --mem=96g
+#SBATCH --cpus-per-task=8 
+#SBATCH --mem=16g
 #SBATCH --time=5-00:00:00
 #SBATCH --parsable
 #SBATCH -J "$2"

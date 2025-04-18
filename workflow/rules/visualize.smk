@@ -25,6 +25,7 @@ rule bigwig:
         rname  = 'bigwig',
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)
+    threads: int(allocated("threads", "bigwig", cluster))
     shell: 
         """
         # Convert SAM to normalized bigwig file
@@ -35,7 +36,7 @@ rule bigwig:
             -o {output.cpm_bw} \\
             -of bigwig \\
             -bs 1 \\
-            -p 1 \\
+            -p {threads} \\
             --normalizeUsing CPM
         
         # Convert SAM to un-normalized bigwig file
@@ -45,7 +46,7 @@ rule bigwig:
             -o {output.raw_bw} \\
             -of bigwig \\
             -bs 1 \\
-            -p 1
+            -p {threads}
         """
 
 
@@ -76,6 +77,7 @@ rule plot_coverage:
         ref_fa  = ref_fa,
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)
+    threads: int(allocated("threads", "plot_coverage", cluster))
     shell: 
         """
         # Create a config/ini file for 

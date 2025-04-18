@@ -5,5 +5,19 @@
         "partition": "norm",
         "gres": "lscratch:32",
         "time": "0-04:00:00"
+    },
+    "mafft": {
+        "threads": "4",
+        "mem": "16g",
+        "partition": "norm",
+        "gres": "lscratch:32",
+        "time": "0-12:00:00"
+    },
+    "tree": {
+        "threads": "4",
+        "mem": "16g",
+        "partition": "norm",
+        "gres": "lscratch:32",
+        "time": "1-18:00:00"
     }
 }

@@ -73,7 +73,7 @@ use_conda =  str_bool(
 ) # default: False
 
 # Use an extisting, named conda env
-conda_env_name = config['options']['conda_env_name']                # default: ''
+conda_env_name = config['options']['conda_env_name']                   # default: ''
 conda_yaml_or_named_env = join(workpath, config['conda']['mpox-seek']) # default: yaml for building
 if conda_env_name:
     # Setup so user does not have
@@ -92,6 +92,13 @@ if use_conda or conda_env_name:
     # Conda and Singularity 
     # are mutually exclusive 
     use_singularity = False
+
+
+# Read in resource information,
+# containing information about 
+# threads, mem, walltimes, etc.
+with open(join(workpath, 'config', 'cluster.json')) as fh:
+    cluster = json.load(fh)
 
 
 # Final output files of the pipeline,
@@ -163,3 +170,4 @@ include: join("rules", "trim.smk")
 include: join("rules", "map.smk")
 include: join("rules", "tree.smk")
 include: join("rules", "visualize.smk")
+include: join("rules", "hooks.smk")

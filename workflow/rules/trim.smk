@@ -51,6 +51,7 @@ rule setup:
             else "",
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)
+    threads: int(allocated("threads", "setup", cluster))
     shell: 
         """
         {params.prefix} {input.fq} {params.suffix} {output.fq}
@@ -74,6 +75,7 @@ rule nanofilt:
         qual_filt=8,
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)
+    threads: int(allocated("threads", "nanofilt", cluster))
     shell: 
         """
         # Nanofilt requires uncompressed input
@@ -100,6 +102,7 @@ rule zcat:
         rname='zcat',
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)
+    threads: int(allocated("threads", "zcat", cluster))
     shell: 
         """
         # Uncompress monkeypox strains fasta
@@ -124,6 +127,7 @@ rule porechop:
         rname='porechop',
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)
+    threads: int(allocated("threads", "porechop", cluster))
     shell: 
         """
         # Trim adapter sequences with porechop
@@ -132,5 +136,5 @@ rule porechop:
             -o {output.fq} \\
             --format fastq.gz \\
             --verbosity 1 \\
-            --threads 1
+            --threads {threads}
         """

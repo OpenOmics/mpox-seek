@@ -18,6 +18,7 @@ rule minimap2:
         ref_fa  = ref_fa,
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)
+    threads: int(allocated("threads", "minimap2", cluster))
     shell: 
         """
         # Align against NCBRI monkeypox genome:
@@ -56,6 +57,7 @@ rule consensus:
         ref_fa  = ref_fa,
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)
+    threads: int(allocated("threads", "consensus", cluster))
     shell: 
         """
         # Create a consensus sequence of aligned reads
@@ -100,6 +102,7 @@ rule concat:
         if decompress_strains_fasta else strains_fasta,
     conda: depending(conda_yaml_or_named_env, use_conda),
     container: depending(config['images']['mpox-seek'], use_singularity)
+    threads: int(allocated("threads", "concat", cluster))
     shell: 
         """
         # Create FASTA file with the reference genome
@@ -127,10 +130,11 @@ rule mafft:
         rname  = 'msa',
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)
+    threads: int(allocated("threads", "mafft", cluster))
     shell: 
         """
         # Run multiple sequence alignment (MSA) of the 
         # reference genome and each samples consensus 
         # sequence using mafft
-        mafft --auto --thread 2 {input.fa} > {output.msa}
+        mafft --auto --thread {threads} {input.fa} > {output.msa}
         """
