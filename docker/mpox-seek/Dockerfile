@@ -10,14 +10,19 @@ FROM ubuntu:22.04
 #     - defaults
 #     - r
 #   dependencies:
-#    - nanofilt=2.8.0
-#    - porechop=0.2.4
-#    - minimap2=2.28
-#    - fasttree=2.1.11
-#    - mafft=7.520
-#    - viral_consensus=0.0.4
-#    - raxml-ng=1.2.1
-#    - gawk
+#     - nanofilt=2.8.0
+#     - porechop=0.2.4
+#     - minimap2=2.28
+#     - fasttree=2.1.11
+#     - mafft=7.520
+#     - viral_consensus=0.0.4
+#     - viralmsa=1.1.44
+#     - raxml-ng=1.2.1
+#     - gawk
+#     - deeptools
+#     - samtools
+#     - pygenometracks 
+#     - sed
 LABEL maintainer=kuhnsa@nih.gov
 
 ############### INIT ################
