@@ -14,7 +14,7 @@
         "time": "0-12:00:00"
     },
     "tree": {
-        "threads": "4",
+        "threads": "8",
         "mem": "16g",
         "partition": "norm",
         "gres": "lscratch:32",

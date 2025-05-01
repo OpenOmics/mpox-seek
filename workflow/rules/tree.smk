@@ -21,7 +21,7 @@ rule tree:
         bootrapping_options = lambda _: "--all --bs-metric fbp,tbe" if bootstrap_trees else ""
     conda: depending(conda_yaml_or_named_env, use_conda)
     container: depending(config['images']['mpox-seek'], use_singularity)
-    threads: int(allocated("threads", "tree", cluster))
+    threads: max(int(allocated("threads", "tree", cluster))/2, 2)
     shell: 
         """
         # Build a phylogenetic tree of containing 
