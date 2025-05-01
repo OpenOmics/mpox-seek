@@ -41,6 +41,16 @@ if strains_fasta.endswith('.gz') or strains_fasta.endswith('.gzip'):
 # to the best tree via bootstrapping data 
 bootstrap_trees = str_bool(config['options']['bootstrap_trees'])
 
+# Select MSA tool to use: mafft or viralmsa.
+# Mafft is recommended for PCR amplicon data,
+# while viralmsa is recommended for WGS data.
+msa_tool = config['options']['msa_tool']  # default: mafft
+
+# Select tree tool to use: raxml-ng or fasttree.
+# raxml-ng is recommended for PCR amplicon data,
+# while fasttree is recommended for WGS data.
+tree_tool = config['options']['tree_tool'] # default: raxml-ng
+
 # Plot coverage of reads across the genome
 plot_coverage = str_bool(config['options']['plot_coverage'])
 
@@ -144,8 +154,21 @@ rule all:
         # @imported from `rule mafft` in rules/map.smk
         join(workpath, "project", batch_id, "msa.fa"),
         # Build a phylogentic tree from MSA,
+        # output file name depends on the
+        # tree_tool method that was selected.
+        # These output files get produced
+        # in a mutually exlcusive manner.
         # @imported from `rule tree` in rules/tree.smk
-        join(workpath, "project", batch_id, "mpox_phylogeny.raxml.bestTree"),
+        # RAxML-NG tree (slow, more accurate, better for PCR)
+        provided(
+            [join(workpath, "project", batch_id, "mpox_phylogeny.raxml.bestTree")],
+            tree_tool == 'raxml-ng'
+        ),
+        # Fasttree tree (fast, less accurate, better for WGS)
+        provided(
+            [join(workpath, "project", batch_id, "mpox_phylogeny.fasttree.tree")],
+            tree_tool == 'fasttree'
+        ),
         # Visualize coverage of reads across the genome,
         # imported from `rule bigwig` in rules/visualize.smk,
         # These rules are conditionally run if --plot-coverage

@@ -113,28 +113,91 @@ rule concat:
         """
 
 
-rule mafft:
-    """
-    Data-processing step to run multiple sequence alignment (MSA) of the
-    reference genome and the consensus sequence of each sample.
-    @Input:
-        FASTA file containing the ref and the consensus sequences of all samples (indirect-gather, singleton)
-    @Output:
-        Multiple sequence alignment (MSA) FASTA file from mafft.
-    """
-    input:
-        fa  = join(workpath, "project", batch_id, "consensus.fa"),
-    output:
-        msa = join(workpath, "project", batch_id, "msa.fa"),
-    params:
-        rname  = 'msa',
-    conda: depending(conda_yaml_or_named_env, use_conda)
-    container: depending(config['images']['mpox-seek'], use_singularity)
-    threads: int(allocated("threads", "mafft", cluster))
-    shell: 
+# Slower of the two MSA methods: mafft and viralMSA.
+# Mafft is more accurate and produced non-rooted
+# output. Mafft does not need a reference and it 
+# produces a global multiple sequence alignment
+# (i.e. all sequences are aligned to each other).
+# Mafft is the default MSA method, and it is 
+# recommended for amplicon sequences.
+if msa_tool == 'mafft':
+    rule mafft:
         """
-        # Run multiple sequence alignment (MSA) of the 
-        # reference genome and each samples consensus 
-        # sequence using mafft
-        mafft --auto --thread {threads} {input.fa} > {output.msa}
+        Data-processing step to run multiple sequence alignment (MSA) of the
+        reference genome and the consensus sequence of each sample.
+        @Input:
+            FASTA file containing the ref and the consensus sequences of all samples (indirect-gather, singleton)
+        @Output:
+            Multiple sequence alignment (MSA) FASTA file from mafft.
         """
+        input:
+            fa  = join(workpath, "project", batch_id, "consensus.fa"),
+        output:
+            msa = join(workpath, "project", batch_id, "msa.fa"),
+        params:
+            rname  = 'msa_mafft',
+        conda: depending(conda_yaml_or_named_env, use_conda)
+        container: depending(config['images']['mpox-seek'], use_singularity)
+        threads: int(allocated("threads", "mafft", cluster))
+        shell: 
+            """
+            # Run multiple sequence alignment (MSA) of the 
+            # reference genome and each samples consensus 
+            # sequence using mafft. This is the recommended
+            # method if working with PCR amplicon data.
+            mafft --auto --thread {threads} {input.fa} > {output.msa}
+            """
+else:
+    # Faster of the two MSA methods: mafft and viralMSA.
+    # viralMSA  produces a reference guided MSA that is 
+    # rooted to the reference genome. It is recommended 
+    # for WGS sequences as it is orders of magnitude
+    # than running mafft faster, and it can scale to 
+    # hundreds or thousands of complete viral genomes.
+    rule viralmsa:
+        """
+        Data-processing step to run a reference guided multiple
+        sequence alignment (MSA) with the concatenated sequence
+        of each samples.
+        @Input:
+            FASTA file containing the ref and the consensus sequences of all samples (indirect-gather, singleton)
+        @Output:
+            Multiple sequence alignment (MSA) FASTA file from viralmsa.
+        """
+        input:
+            fa  = join(workpath, "project", batch_id, "consensus.fa"),
+        output:
+            msa = join(workpath, "project", batch_id, "msa.fa"),
+        params:
+            rname  = 'msa_viralmsa',
+            ref_fa = ref_fa,
+            tmpdir = join(workpath, "project", batch_id, "viralmsa_tmpdir"),
+            # directories below cannot exist
+            # prior to running viralmsa
+            outputdir = join(workpath, "project", batch_id, "viralmsa_tmpdir", "output"),
+            aligndir  = join(workpath, "project", batch_id, "viralmsa_tmpdir", "align"),
+        conda: depending(conda_yaml_or_named_env, use_conda)
+        container: depending(config['images']['mpox-seek'], use_singularity)
+        threads: int(allocated("threads", "viralmsa", cluster))
+        shell: 
+            """
+            # ViralMSA output and msa directory
+            # cannot exist prior to running
+            if [ -d '{params.tmpdir}' ]; then
+                rm -rf '{params.tmpdir}'; 
+            fi
+            # Runs reference guided multiple sequence alignment (MSA)
+            # using the reference genome and each samples consensus 
+            # sequence using viralMSA. This is the recomended method
+            # if working with complete viral genomes.
+            ViralMSA.py \\
+                -s {input.fa} \\
+                -r {params.ref_fa} \\
+                --output {params.outputdir} \\
+                --viralmsa_dir {params.aligndir} \\
+                --email none \\
+                --aligner minimap2 \\
+                --stdout \\
+                --omit_ref \\
+            > {output.msa}
+            """

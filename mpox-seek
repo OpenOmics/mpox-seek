@@ -400,7 +400,9 @@ def parsed_arguments(name, description):
                 [--additional-strains ADDITIONAL_STRAINS] \\
                 [--batch-id BATCH_ID] \\
                 [--bootstrap-trees] \\
+                [--msa-tool {{mafft,viralmsa}}] \\
                 [--plot-coverage] \\
+                [--tree-tool {{raxml-ng,fasttree}}] \\
                 [--whole-genome-sequencing] \\
                 --input INPUT [INPUT ...] \\
                 --output OUTPUT
@@ -476,12 +478,60 @@ def parsed_arguments(name, description):
                                 calculated by bootstrapping, will be added to the best 
                                 scoring tree. 
                                   Example: --bootstrap-trees
+          --msa-tool {{mafft,viralmsa}}
+                                Performs multiple sequence alignment (MSA) using selected
+                                tool. This optional allows a user to select an alternative
+                                tool or method for performing MSA. Currently, there are two
+                                different tools/options available: mafft or viralmsa.
+                                Here is a short description of each tool/option:
+                                   • mafft: Performs global multiple sequence alignment
+                                using mafft. This is the slower of the two options; however,
+                                it produces the best results. This is the default msa tool
+                                if this option is not provided. If you have PCR amplicon
+                                data, this is the recommended option for performing MSA.
+                                   • viralmsa: Performs reference guided multiple sequence
+                                alignment using viralmsa. This is the faster of the two
+                                options; however, it produces rooted output relative to
+                                the provided reference genome. If you are running the
+                                pipeline with complete viral sequences and the whole
+                                genome sequencing option (i.e --whole-genome-sequencing),
+                                we recommened using viralmsa over mafft. Viralmsa will be
+                                orders of magnitiude faster than mafft, and it can scale
+                                to hundreds or thousands of samples/additional strains.
+                                  Default: mafft
+                                  Example: --msa-tool mafft
           --plot-coverage
                                 Plots coverage of along the reference genome. If this flag            
                                 is provided, per-sample plots of raw coverage will be made. 
                                 This plot can be useful for identifying samples or regions
                                 of the reference genome with low coverage. 
                                   Example: --plot-coverage
+          --tree-tool {{raxml-ng,fasttree}}
+                                Builds a phylogentic tree using the selected tool. This
+                                optional allows a user to select an alternative tool or
+                                method for building a phylogentic tree. Currently, there
+                                are two different tools/options available: raxmlng,
+                                fasttree. Here is a short description of each tool/option:
+                                   • raxml-ng: Builds a tree using maximum-likelihood (ML) 
+                                optimality criterion. This is the slower of the two options;
+                                however, it produces the best results. This is the default
+                                tree building tool if this option is not provided. If you
+                                have PCR amplicon data, this is the recommended option for
+                                building a phylogentic tree.
+                                   • fasttree: Builds a tree using fasttree's variant of a
+                                neighbor-joining. This is the faster of the two options;
+                                however, it may not produce the most optimal topology. If
+                                you are running the pipeline with complete viral sequences
+                                and the whole genome sequencing option (i.e --whole-genome
+                                -sequencing), we recommened using fasttree over raxml-ng.
+                                Fasttree will be orders of magnitiude faster than raxml-ng,
+                                and it can scale to hundreds or thousands of samples/
+                                additional strains. Benchmarking has also shown that
+                                bootstrapping with complete viral genomes and an additional
+                                strains file can be completed with fasttree whereas with
+                                raxml-ng, it would take days or longer to perform.
+                                  Default: raxml-ng
+                                  Example: --tree-tool raxml-ng
           --whole-genome-sequencing
                                 This flag is used to indicate that the input FastQ files
                                 are whole genome sequences. By default, the pipeline will
@@ -710,12 +760,32 @@ def parsed_arguments(name, description):
         help = argparse.SUPPRESS
     )
 
+    # Use the following MSA tool
+    subparser_run.add_argument(
+        '--msa-tool',
+        type = str.lower,
+        required = False,
+        default = "mafft",
+        choices = ["mafft", "viralmsa"],
+        help = argparse.SUPPRESS
+    )
+
     # Plot coverage of samples
     subparser_run.add_argument(
         '--plot-coverage',
         action = 'store_true',
         required = False,
         default = False,
+        help = argparse.SUPPRESS
+    )
+
+    # Use the following tree building tool
+    subparser_run.add_argument(
+        '--tree-tool',
+        type = str.lower,
+        required = False,
+        default = "raxml-ng",
+        choices = ["raxml-ng", "fasttree"],
         help = argparse.SUPPRESS
     )
 
