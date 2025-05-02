@@ -18,7 +18,10 @@ $ mpox-seek run [--help] \
       [--additional-strains ADDITIONAL_STRAINS] \
       [--batch-id BATCH_ID] \
       [--bootstrap-trees] \
+      [--msa-tool {mafft,viralmsa}] \
       [--plot-coverage] \
+      [--tree-tool {raxml-ng,fasttree}] \
+      [--whole-genome-sequencing] \
       --input INPUT [INPUT ...] \
       --output OUTPUT
 ```
@@ -84,6 +87,22 @@ Each of the following arguments are optional, and do not need to be provided.
 > ***Example:*** `--bootstrap-trees`
 
 ---
+  `--msa-tool {mafft,viralmsa}`  
+> **Select a tool for multiple sequence alignment.**  
+> *type: string*  
+> *default: mafft*  
+>  
+>  Set this option to perform multiple sequence alignment (MSA) using one of the provided tools. This option allows a user to select an alternative tool or method for performing MSA. By default, the pipeline will use *mafft*; however, for whole-genome sequencing data *viralmsa* is recommended. Currently, there are two different tools/options available: *mafft* or *viralmsa*. Here is an overview of each tool.  
+> 
+> ***mafft***  
+> Performs global multiple sequence alignment. This is the slower of the two options; however, it produces the best results. This is the default msa tool if this option is not provided. If you have PCR amplicon data, this is the recommended option for performing MSA.
+>  
+> ***viralmsa***   
+> Performs reference guided multiple sequence alignment. This is the faster of the two options; however, it produces rooted output relative to the provided reference genome. If you are running the pipeline with complete viral sequences and the whole genome sequencing option (i.e `--whole-genome-sequencing`), we recommened using viralmsa over mafft. Viralmsa will be orders of magnitiude faster than mafft, and it can scale to hundreds or thousands of samples/additional strains.
+>
+> ***Example:*** `--msa-tool mafft`
+
+---
   `--plot-coverage`  
 > **Plots coverage of each sample.**  
 > *type: boolean flag*  
@@ -92,6 +111,32 @@ Each of the following arguments are optional, and do not need to be provided.
 >  This option will plot coverage along the reference genome. If this flag is provided, per-sample plots of raw coverage will be created. This plot can be useful for identifying samples or regions of the reference genome with low coverage. By default, the pipeline will not create any coverage plots.  
 >  
 > ***Example:*** `--plot-coverage`  
+
+---
+  `--tree-tool {raxml-ng,fasttree}`  
+> **Select a tool for building a phylogentic tree.**  
+> *type: string*  
+> *default: raxml-ng*  
+>  
+>  Set this option to build a phylogentic tree using one of the provided tools. This option allows a user to build a phylogentic tree using the selected tool. This option allows a user to select an alternative tool or method for building a phylogentic tree. Currently, there are two different tools/options available: *raxmlng*, *fasttree*. Here is a short description of each available tool.
+> 
+> ***raxml-ng***  
+> Builds a tree using maximum-likelihood (ML) optimality criterion. This is the slower of the two options; however, it produces the best results. This is the default tree building tool if this option is not provided. If you have PCR amplicon data, this is the recommended option for building a phylogentic tree.
+>  
+> ***fasttree***    
+> Builds a tree using fasttree's variant of a neighbor-joining. This is the faster of the two options; however, it may not produce the most optimal topology. If you are running the pipeline with complete viral sequences and the whole genome sequencing option (i.e `--whole-genome -sequencing`), we recommened using *fasttree* over *raxml-ng*. Fasttree will be orders of magnitiude faster than raxml-ng, and it can scale to hundreds or thousands of samples/ additional strains. Benchmarking has also shown that bootstrapping with complete viral genomes and an additional strains file can be completed with fasttree whereas with raxml-ng, it would take days or longer to perform.
+>
+> ***Example:*** `--tree-tool raxml-ng`
+
+---
+  `--whole-genome-sequencing`  
+> **Runs the pipeline in WGS mode.**  
+> *type: boolean flag*  
+> *default: false*  
+>  
+>  This flag is used to indicate that the input FastQ files are whole genome sequences. By default, the pipeline will assume that the input FastQ files are amplicon sequences. This option is only required if the input FastQ files contain whole genome sequences. If provided, the pipeline will align reads against the entire monkeypox genome. It is also worh noting that if this option is provided, *we highly recommend also providing the following options*: `--msa-tool viralmsa` and `--tree-tool fasttree` due to the size of the input data. The `viralmsa` and `fasttree` are better optimized for large datasets, such as whole genome sequences.
+>  
+> ***Example:*** `--whole-genome-sequencing`
 
 ### 2.3 Orchestration options
 
@@ -157,7 +202,7 @@ Each of the following arguments are optional, and do not need to be provided.
 >
 > Uses a local cache of SIFs on the filesystem. This SIF cache can be shared across users if permissions are set correctly. If a SIF does not exist in the SIF cache, the image will be pulled from Dockerhub and a warning message will be displayed. The `mpox-seek cache` subcommand can be used to create a local SIF cache. Please see `mpox-seek cache` for more information. This command is extremely useful for avoiding DockerHub pull rate limits. It also remove any potential errors that could occur due to network issues or DockerHub being temporarily unavailable. We recommend running mpox-seek with this option when ever possible.
 > 
-> ***Example:*** `--singularity-cache /data/$USER/SIFs`
+> ***Example:*** `-sif-cache /data/$USER/SIFs`
 
 ---  
   `--threads THREADS`   
@@ -228,6 +273,8 @@ Each of the following arguments are optional, and do not need to be provided.
 
 The example below shows how run the pipeline locally using conda/mamba. If you have already created a _mpox-seek_ conda environment, please use feel free to also add the following option: `--conda-env-name mpox-seek`. To create a re-usable, named conda environment for the pipeline, please run the following command: `mamba env create -f workflow/envs/mpox.yaml`. For detailed setup instructions, please see our [setup page](setup.md).
 
+### 3.1 Targeted, PCR amplicon data
+
 ```bash 
   # Step 1.) Activate your conda environment,
   # assumes its installed in home directory.
@@ -239,7 +286,7 @@ The example below shows how run the pipeline locally using conda/mamba. If you h
   # Step 2A.) Dry-run the pipeline, this
   # will show what steps will run.
   ./mpox-seek run --input .tests/*.fastq.gz \
-            --output mpox-seek_output \
+            --output pcr_mpox-seek_output \
             --additional-strains resources/mpox_additional_strains.fa.gz \
             --batch-id "$(date '+%Y-%m-%d-%H-%M')" \
             --bootstrap-trees \
@@ -255,11 +302,99 @@ The example below shows how run the pipeline locally using conda/mamba. If you h
   # writting of files occurs, format:
   # YYYY-MM-DD-HH-MM. Support for each
   # branch is calculated via bootstrapping.
+  # The pipeline will default to using
+  # the mafft and raxml-ng tools for
+  # multiple sequence alignment and
+  # phylogenetic tree construction.
+  # Mafft and raxml-ng are recommended
+  # for amplicon data.
   ./mpox-seek run --input .tests/*.fastq.gz \
-            --output mpox-seek_output \
+            --output pcr_mpox-seek_output \
             --additional-strains resources/mpox_additional_strains.fa.gz \
             --batch-id "$(date '+%Y-%m-%d-%H-%M')" \
             --bootstrap-trees \
+            --use-conda \
+            --mode local
+```
+
+### 3.1 Complete, whole-genome data
+
+Mpox-seek is designed to work with both amplicon and whole-genome sequencing data. If you have complete viral sequences, please run the pipeline with the following options below. 
+
+**Please note:** An additional strains file for complete viral sequences has not been bundled with the pipeline; however, you can create your own file with the same format as the one provided with the pipeline.
+
+```bash 
+  # Step 1.) Activate your conda environment,
+  # assumes its installed in home directory.
+  # May need to change this depending on
+  # where you installed conda/mamba.
+  . ${HOME}/conda/etc/profile.d/conda.sh
+  conda activate snakemake
+
+  # Step 2A.) Dry-run the pipeline, this
+  # will show what steps will run.
+  ./mpox-seek run --input .tests/*.fastq.gz \
+            --output wgs_mpox-seek_output \
+            --batch-id "$(date '+%Y-%m-%d-%H-%M')" \
+            --bootstrap-trees \
+            --msa-tool viralmsa \
+            --tree-tool fasttree \
+            --whole-genome-sequencing \
+            --mode local \
+            --use-conda \
+            --dry-run
+
+  # Step 2B.) Run the mpox-seek pipeline,
+  # Create a tree with additional 
+  # strains of interest and adds a
+  # unique batch identifer to project-
+  # level files to ensure no over
+  # writting of files occurs, format:
+  # YYYY-MM-DD-HH-MM. Support for each
+  # branch is calculated via bootstrapping.
+
+```bash 
+  # Step 1.) Activate your conda environment,
+  # assumes its installed in home directory.
+  # May need to change this depending on
+  # where you installed conda/mamba.
+  . ${HOME}/conda/etc/profile.d/conda.sh
+  conda activate snakemake
+
+  # Step 2A.) Dry-run the pipeline, this
+  # will show what steps will run.
+  ./mpox-seek run --input .tests/*.fastq.gz \
+            --output wgs_mpox-seek_output \
+            --additional-strains mpox_wgs_additional_strains.fa.gz \
+            --batch-id "$(date '+%Y-%m-%d-%H-%M')" \
+            --bootstrap-trees \
+            --msa-tool viralmsa \
+            --tree-tool fasttree \
+            --whole-genome-sequencing \
+            --mode local \
+            --use-conda \
+            --dry-run
+
+  # Step 2B.) Run the mpox-seek pipeline,
+  # Create a tree with additional 
+  # strains of interest and adds a
+  # unique batch identifer to project-
+  # level files to ensure no over
+  # writting of files occurs, format:
+  # YYYY-MM-DD-HH-MM. Support for each
+  # branch is calculated via bootstrapping.
+  # For WGS data, we recommend using
+  # the viralmsa and fasttree tools for
+  # multiple sequence alignment and
+  # phylogenetic tree construction.
+  ./mpox-seek run --input .tests/*.fastq.gz \
+            --output wgs_mpox-seek_output \
+            --additional-strains mpox_wgs_additional_strains.fa.gz \
+            --batch-id "$(date '+%Y-%m-%d-%H-%M')" \
+            --bootstrap-trees \
+            --msa-tool viralmsa \
+            --tree-tool fasttree \
+            --whole-genome-sequencing \
             --use-conda \
             --mode local
 ```
