@@ -2,12 +2,12 @@
    
   <h1>mpox-seek 🔬</h1>
   
-  **_Targeted ONT Pipeline for Monkeypox_**
+  **_An ONT Pipeline for targeted or whole-genome Monkeypox sequencing_**
 
   [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10957607.svg)](https://doi.org/10.5281/zenodo.10957607) [![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/OpenOmics/mpox-seek?color=blue&include_prereleases)](https://github.com/OpenOmics/mpox-seek/releases) [![Docker Pulls](https://img.shields.io/docker/pulls/skchronicles/mpox-seek)](https://hub.docker.com/repository/docker/skchronicles/mpox-seek)<br> [![tests](https://github.com/OpenOmics/mpox-seek/workflows/tests/badge.svg)](https://github.com/OpenOmics/mpox-seek/actions/workflows/main.yaml) [![docs](https://github.com/OpenOmics/mpox-seek/workflows/docs/badge.svg)](https://github.com/OpenOmics/mpox-seek/actions/workflows/docs.yml) [![GitHub issues](https://img.shields.io/github/issues/OpenOmics/mpox-seek?color=brightgreen)](https://github.com/OpenOmics/mpox-seek/issues)  [![GitHub license](https://img.shields.io/github/license/OpenOmics/mpox-seek)](https://github.com/OpenOmics/mpox-seek/blob/main/LICENSE) 
   
   <i>
-    mpox-seek is an awesome, portable and fast oxford nanopore pipeline for targeted monkeypox sequencing.
+    mpox-seek is an awesome, portable and fast oxford nanopore pipeline for targeted and whole-genome monkeypox sequencing.
   </i>
 </div>
 
@@ -21,7 +21,7 @@ The **`./mpox-seek`** pipeline is composed several inter-related sub commands to
  * [<code>mpox-seek <b>install</b></code>](https://openomics.github.io/mpox-seek/usage/install/): Download reference files locally.
  * [<code>mpox-seek <b>cache</b></code>](https://openomics.github.io/mpox-seek/usage/cache/): Cache software containers locally.
 
-**mpox-seek** is a streamlined viral metagenomics pipeline to align, collapse, and visualize targeted monekypox samples. It relies on technologies like [Singularity<sup>1</sup>](https://singularity.lbl.gov/) to maintain the highest-level of reproducibility. The pipeline consists of a series of data processing and quality-control steps orchestrated by [Snakemake<sup>2</sup>](https://snakemake.readthedocs.io/en/stable/), a flexible and scalable workflow management system, to submit jobs to a cluster.
+**mpox-seek** is a streamlined viral metagenomics pipeline to align, collapse, and visualize targeted or whole-genome monekypox samples. It relies on technologies like [Singularity<sup>1</sup>](https://singularity.lbl.gov/) to maintain the highest-level of reproducibility. The pipeline consists of a series of data processing and quality-control steps orchestrated by [Snakemake<sup>2</sup>](https://snakemake.readthedocs.io/en/stable/), a flexible and scalable workflow management system, to submit jobs to a cluster.
 
 The pipeline is compatible with data generated from [Nanopore sequencing technologies](https://nanoporetech.com/). As input, it accepts a set of FastQ files and can be run locally on a compute instance or on-premise using a cluster. A user can define the method or mode of execution. The pipeline can submit jobs to a cluster using a job scheduler like SLURM (more coming soon!). A hybrid approach ensures the pipeline is accessible to all users.
 
@@ -87,7 +87,7 @@ Skyler Kuhn, & Schaughency, P. (2024). OpenOmics/mpox-seek: v0.1.0 (v0.1.0). Zen
 
 </details>
 
-For more citation style options, please visit the pipeline's [Zenodo page](https://doi.org/10.5281/zenodo.10957607).
+Please do not forget to also cite our [methods paper](https://www.tandfonline.com/doi/full/10.1080/22221751.2025.2494733) in addition to the zenodo DOI above. For more zenodo citation style options, please visit the pipeline's [Zenodo page](https://doi.org/10.5281/zenodo.10957607).
 
 
 ## References
