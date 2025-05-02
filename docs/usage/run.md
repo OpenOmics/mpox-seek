@@ -273,7 +273,7 @@ Each of the following arguments are optional, and do not need to be provided.
 
 The example below shows how run the pipeline locally using conda/mamba. If you have already created a _mpox-seek_ conda environment, please use feel free to also add the following option: `--conda-env-name mpox-seek`. To create a re-usable, named conda environment for the pipeline, please run the following command: `mamba env create -f workflow/envs/mpox.yaml`. For detailed setup instructions, please see our [setup page](setup.md).
 
-### 3.1 Targeted, PCR amplicon data
+### 3.1 Targeted, PCR amplicon sequencing data
 
 ```bash 
   # Step 1.) Activate your conda environment,
@@ -317,41 +317,11 @@ The example below shows how run the pipeline locally using conda/mamba. If you h
             --mode local
 ```
 
-### 3.1 Complete, whole-genome data
+### 3.1 Complete, whole-genome sequencing data
 
 Mpox-seek is designed to work with both amplicon and whole-genome sequencing data. If you have complete viral sequences, please run the pipeline with the following options below. 
 
 **Please note:** An additional strains file for complete viral sequences has not been bundled with the pipeline; however, you can create your own file with the same format as the one provided with the pipeline.
-
-```bash 
-  # Step 1.) Activate your conda environment,
-  # assumes its installed in home directory.
-  # May need to change this depending on
-  # where you installed conda/mamba.
-  . ${HOME}/conda/etc/profile.d/conda.sh
-  conda activate snakemake
-
-  # Step 2A.) Dry-run the pipeline, this
-  # will show what steps will run.
-  ./mpox-seek run --input .tests/*.fastq.gz \
-            --output wgs_mpox-seek_output \
-            --batch-id "$(date '+%Y-%m-%d-%H-%M')" \
-            --bootstrap-trees \
-            --msa-tool viralmsa \
-            --tree-tool fasttree \
-            --whole-genome-sequencing \
-            --mode local \
-            --use-conda \
-            --dry-run
-
-  # Step 2B.) Run the mpox-seek pipeline,
-  # Create a tree with additional 
-  # strains of interest and adds a
-  # unique batch identifer to project-
-  # level files to ensure no over
-  # writting of files occurs, format:
-  # YYYY-MM-DD-HH-MM. Support for each
-  # branch is calculated via bootstrapping.
 
 ```bash 
   # Step 1.) Activate your conda environment,
